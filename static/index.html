@@ -1,0 +1,1523 @@
+<meta charset="UTF-8" />
+<title>Fieldwork — Automations (Builder)</title>
+<style>
+  :root {
+    --brand-25: #FCFAFF; --brand-50: #F9F5FF; --brand-100: #F4EBFF; --brand-200: #E9D7FE;
+    --brand-300: #D6BBFB; --brand-600: #7F56D9; --brand-700: #6941C6; --brand-800: #53389E;
+
+    --gray-25: #FCFCFD; --gray-50: #F9FAFB; --gray-100: #F2F4F7; --gray-200: #EAECF0;
+    --gray-300: #D0D5DD; --gray-400: #98A2B3; --gray-500: #667085; --gray-600: #475467;
+    --gray-700: #344054; --gray-800: #1D2939; --gray-900: #101828;
+
+    --success-25: #F6FEF9; --success-50: #ECFDF3; --success-200: #A9EFC5; --success-600: #079455; --success-700: #067647;
+    --warning-50: #FFFAEB; --warning-200: #FEDF89; --warning-600: #DC6803; --warning-700: #B54708;
+    --error-25: #FFFBFA; --error-50: #FEF3F2; --error-200: #FECDCA; --error-300: #FDA29B; --error-600: #D92D20; --error-700: #B42318;
+
+    --bg-page: var(--gray-50);
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #FFFFFF;
+    --bg-sunken: var(--gray-50);
+    --bg-canvas: #FBFBFD;
+    --dot-color: var(--gray-300);
+    --text-primary: var(--gray-900);
+    --text-secondary: var(--gray-700);
+    --text-tertiary: var(--gray-500);
+    --text-placeholder: var(--gray-400);
+    --border-primary: var(--gray-200);
+    --border-secondary: var(--gray-300);
+    --focus-ring: 0 0 0 4px var(--brand-100);
+    --shadow-sm: 0 1px 3px rgba(16,24,40,.10), 0 1px 2px rgba(16,24,40,.06);
+    --shadow-md: 0 4px 8px -2px rgba(16,24,40,.10);
+    --shadow-lg: 0 12px 16px -4px rgba(16,24,40,.10);
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-page: #0C111D; --bg-surface: #101828; --bg-sidebar: #0C111D; --bg-sunken: #161B26;
+      --bg-canvas: #0A0E17; --dot-color: #29303E;
+      --text-primary: #F5F5F6; --text-secondary: #CECFD2; --text-tertiary: #94969C; --text-placeholder: #61646C;
+      --border-primary: #1F242F; --border-secondary: #333741;
+      --brand-50: #2C1C5F; --brand-100: #3a2570; --brand-200: #53389E;
+      --success-50: #12261E; --error-25: #2b1615; --error-50: #3a1a17; --warning-50: #2e2111;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow-md: 0 4px 8px -2px rgba(0,0,0,.45); --shadow-lg: 0 12px 16px -4px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-page: #0C111D; --bg-surface: #101828; --bg-sidebar: #0C111D; --bg-sunken: #161B26;
+    --bg-canvas: #0A0E17; --dot-color: #29303E;
+    --text-primary: #F5F5F6; --text-secondary: #CECFD2; --text-tertiary: #94969C; --text-placeholder: #61646C;
+    --border-primary: #1F242F; --border-secondary: #333741;
+    --brand-50: #2C1C5F; --brand-100: #3a2570; --brand-200: #53389E;
+    --success-50: #12261E; --error-25: #2b1615; --error-50: #3a1a17; --warning-50: #2e2111;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow-md: 0 4px 8px -2px rgba(0,0,0,.45); --shadow-lg: 0 12px 16px -4px rgba(0,0,0,.5);
+  }
+  :root[data-theme="light"] {
+    --bg-page: var(--gray-50); --bg-surface: #FFFFFF; --bg-sidebar: #FFFFFF; --bg-sunken: var(--gray-50);
+    --bg-canvas: #FBFBFD; --dot-color: var(--gray-300);
+    --text-primary: var(--gray-900); --text-secondary: var(--gray-700); --text-tertiary: var(--gray-500); --text-placeholder: var(--gray-400);
+    --border-primary: var(--gray-200); --border-secondary: var(--gray-300);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: var(--bg-page); color: var(--text-primary); }
+  button, input, select, textarea { font-family: inherit; }
+  ::selection { background: var(--brand-200); }
+  a { color: inherit; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 8px; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ─────────────────────────────────────────── */
+  .sidebar {
+    width: 248px; flex-shrink: 0; background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-primary);
+    display: flex; flex-direction: column; padding: 20px 12px;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .brand-mark {
+    display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px;
+    margin-bottom: 8px; border-bottom: 1px solid var(--border-primary);
+  }
+  .brand-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--brand-600), var(--brand-800));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .brand-name { font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.2px; }
+  .brand-sub { font-size: 11px; color: var(--text-tertiary); margin-top: -2px; }
+
+  .nav-group { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: not-allowed;
+    position: relative; user-select: none;
+  }
+  .nav-item svg { flex-shrink: 0; opacity: .75; }
+  .nav-item .ph-tag {
+    margin-left: auto; font-size: 10px; font-weight: 600; color: var(--text-placeholder);
+    background: var(--bg-sunken); border: 1px solid var(--border-primary); border-radius: 999px; padding: 1px 7px;
+  }
+  .nav-item.active { background: var(--brand-50); color: var(--brand-700); cursor: pointer; font-weight: 600; }
+  .nav-item.active svg { opacity: 1; stroke: var(--brand-700); }
+  .nav-item.clickable { cursor: pointer; }
+  .nav-item.clickable:hover:not(.active) { background: var(--bg-sunken); color: var(--text-primary); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 2px; padding-top: 12px; border-top: 1px solid var(--border-primary); }
+  .avatar { width: 30px; height: 30px; border-radius: 999px; background: var(--brand-100); color: var(--brand-700); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .profile-meta { display: flex; flex-direction: column; min-width: 0; }
+  .profile-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .profile-role { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Main ─────────────────────────────────────────── */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px 16px; background: var(--bg-surface); border-bottom: 1px solid var(--border-primary); flex-shrink: 0; }
+  .crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-tertiary); margin-bottom: 10px; }
+  .crumb button { background: none; border: none; color: var(--text-tertiary); font-size: 13px; cursor: pointer; padding: 0; font-family: inherit; }
+  .crumb button:hover { color: var(--text-primary); }
+  .crumb .sep { opacity: .6; }
+  .crumb .current { color: var(--text-primary); font-weight: 600; }
+
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin: 0; text-wrap: balance; }
+  .page-desc { font-size: 14px; color: var(--text-tertiary); margin: 4px 0 0; max-width: 560px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: background .12s ease; white-space: nowrap; }
+  .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .btn-primary { background: var(--brand-600); color: #fff; }
+  .btn-primary:hover { background: var(--brand-700); }
+  .btn-secondary { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--border-secondary); }
+  .btn-secondary:hover { background: var(--bg-sunken); }
+  .btn-ghost { background: none; color: var(--text-tertiary); border: 1px dashed var(--border-secondary); font-weight: 500; font-size: 13px; padding: 8px 12px; }
+  .btn-ghost:hover { background: var(--bg-sunken); }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-primary); background: var(--bg-surface); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .icon-btn:hover { background: var(--bg-sunken); }
+  .icon-btn:focus-visible, .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  /* ── View: dashboard list ─────────────────────────── */
+  .view-body { padding: 24px 32px 64px; }
+  .search-input {
+    width: 320px; max-width: 100%; font-size: 14px; padding: 9px 12px 9px 36px; border-radius: 8px;
+    border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-primary);
+  }
+  .search-wrap { position: relative; margin-bottom: 16px; display: inline-block; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-placeholder); }
+  .search-input:focus { outline: none; box-shadow: var(--focus-ring); border-color: var(--brand-300); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--bg-surface); border: 1px solid var(--border-primary); border-radius: 12px; overflow: hidden; font-variant-numeric: tabular-nums; }
+  thead th { text-align: left; font-size: 12px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; padding: 12px 20px; background: var(--bg-sunken); border-bottom: 1px solid var(--border-primary); }
+  thead th.num { text-align: right; }
+  tbody td { padding: 16px 20px; border-bottom: 1px solid var(--border-primary); font-size: 14px; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.row-clickable { cursor: pointer; }
+  tbody tr.row-clickable:hover td { background: var(--bg-sunken); }
+  td.num { text-align: right; color: var(--text-secondary); }
+  .row-name { font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .row-warning { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--warning-700); margin-top: 3px; }
+  .new-pill { font-size: 10px; font-weight: 700; letter-spacing: .3px; color: var(--brand-700); background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 999px; padding: 1px 8px; text-transform: uppercase; }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .badge .dot { width: 6px; height: 6px; border-radius: 999px; }
+  .badge-success { background: var(--success-50); color: var(--success-700); }
+  .badge-success .dot { background: var(--success-600); }
+  .badge-gray { background: var(--bg-sunken); color: var(--text-secondary); }
+  .badge-gray .dot { background: var(--text-tertiary); }
+  .badge-warning { background: var(--warning-50); color: var(--warning-700); }
+  .badge-warning .dot { background: var(--warning-600); }
+
+  .toggle { position: relative; width: 36px; height: 20px; border-radius: 999px; background: var(--border-secondary); cursor: pointer; border: none; flex-shrink: 0; transition: background .15s ease; }
+  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: #fff; transition: transform .15s ease; box-shadow: 0 1px 2px rgba(16,24,40,.2); }
+  .toggle.on { background: var(--brand-600); }
+  .toggle.on::after { transform: translateX(16px); }
+  .toggle:disabled { opacity: .5; cursor: not-allowed; }
+  .toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  /* ── View: node canvas ─────────────────────────── */
+  .canvas-topbar-right { display: flex; align-items: center; gap: 14px; }
+  .autosave { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--success-700); }
+
+  .canvas-viewport { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+  .canvas-outer { position: absolute; inset: 0; overflow: auto; background: var(--bg-canvas); }
+  .canvas-inner {
+    position: relative;
+    background-image: radial-gradient(var(--dot-color) 1.3px, transparent 1.3px);
+    background-size: 22px 22px;
+    transform-origin: 0 0;
+  }
+  .connector-svg { position: absolute; top: 0; left: 0; pointer-events: none; overflow: visible; }
+  .branch-label {
+    position: absolute; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; letter-spacing: .2px;
+  }
+  .branch-label.no-reply { background: var(--bg-surface); border: 1px solid var(--border-secondary); color: var(--text-secondary); }
+  .branch-label.replied { background: var(--error-25); border: 1px solid var(--error-200); color: var(--error-700); }
+
+  .node-card {
+    position: absolute; width: 236px; background: var(--bg-surface); border: 1px solid var(--border-primary);
+    border-radius: 14px; box-shadow: var(--shadow-sm); cursor: pointer; user-select: none;
+    transition: box-shadow .12s ease, border-color .12s ease;
+  }
+  .node-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-secondary); }
+  .node-card.selected { border-color: var(--brand-400, var(--brand-600)); box-shadow: 0 0 0 3px var(--brand-100); }
+  .node-card.trigger { border-color: var(--brand-200); }
+  .node-card.stop { border-color: var(--error-200); background: var(--error-25); }
+  .node-card.floating { border-style: dashed; opacity: .85; }
+  .node-card.dimmed { opacity: .35; filter: grayscale(.4); }
+  .node-card.broken { border-color: var(--error-300); box-shadow: 0 0 0 3px var(--error-50); }
+  .node-card.broken:hover { box-shadow: 0 0 0 3px var(--error-50), var(--shadow-md); }
+
+  .node-head { display: flex; align-items: center; gap: 8px; padding: 10px 8px 10px 12px; border-bottom: 1px solid var(--border-primary); }
+  .node-card.stop .node-head { border-bottom-color: var(--error-200); }
+  .node-head-icon { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .node-head-icon.trigger { background: var(--brand-100); color: var(--brand-700); }
+  .node-head-icon.send { background: var(--bg-sunken); color: var(--text-secondary); }
+  .node-head-icon.wait { background: var(--warning-50); color: var(--warning-700); }
+  .node-head-icon.stop { background: var(--error-50); color: var(--error-600); }
+  .node-head-icon.task { background: var(--success-50); color: var(--success-600); }
+  .node-head-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-tertiary); flex: 1; }
+  .node-card.stop .node-head-label { color: var(--error-700); }
+
+  .kebab-wrap { position: relative; }
+  .kebab-btn { width: 22px; height: 22px; border-radius: 6px; border: none; background: none; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); cursor: pointer; flex-shrink: 0; }
+  .kebab-btn:hover { background: var(--bg-sunken); color: var(--text-primary); }
+  .kebab-menu {
+    position: absolute; top: 26px; right: 0; background: var(--bg-surface); border: 1px solid var(--border-primary);
+    border-radius: 10px; box-shadow: var(--shadow-lg); min-width: 148px; padding: 5px; z-index: 20; display: none;
+  }
+  .kebab-menu.open { display: block; }
+  .kebab-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; font-size: 13px; font-weight: 500; color: var(--text-secondary); background: none; border: none; padding: 7px 9px; border-radius: 7px; cursor: pointer; }
+  .kebab-item:hover { background: var(--bg-sunken); }
+  .kebab-item.destructive { color: var(--error-600); }
+  .kebab-item.destructive:hover { background: var(--error-25); }
+  .kebab-item:disabled { opacity: .4; cursor: not-allowed; }
+  .kebab-item:disabled:hover { background: none; }
+
+  .node-body { padding: 12px; }
+  .node-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+  .node-detail { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .node-guard { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--brand-700); background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 999px; padding: 1px 7px; margin-top: 8px; }
+  .node-unconnected { font-size: 11px; color: var(--warning-700); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+  .node-error { font-size: 11px; font-weight: 600; color: var(--error-700); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+  .port { position: absolute; width: 10px; height: 10px; border-radius: 999px; background: var(--bg-surface); border: 2px solid var(--border-secondary); top: 24px; }
+  .port.left { left: -6px; }
+  .port.right { right: -6px; }
+  .node-card.trigger .port { border-color: var(--brand-400, var(--brand-600)); }
+  .node-card.stop .port { border-color: var(--error-300); }
+
+  .node-add {
+    position: absolute; width: 22px; height: 22px; border-radius: 999px; border: none; cursor: pointer;
+    background: var(--brand-600); color: #fff; display: none; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm); z-index: 6; transition: transform .1s ease, background .1s ease;
+  }
+  .node-add:hover { background: var(--brand-700); transform: scale(1.12); }
+  .node-add:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .node-card:hover .node-add { display: flex; }
+  .node-add.right { right: -11px; top: 24px; }
+  .node-add.left { left: -11px; top: 24px; }
+  .node-add.bottom { left: 50%; bottom: -11px; transform: translateX(-50%); }
+  .node-add.bottom:hover { transform: translateX(-50%) scale(1.12); }
+
+  /* Bottom floating toolbar (visual reference to node-canvas tools; select/pan are active affordances only) */
+  .canvas-toolbar {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 2px; background: var(--bg-surface); border: 1px solid var(--border-primary);
+    border-radius: 12px; box-shadow: var(--shadow-lg); padding: 5px; z-index: 15;
+  }
+  .tool-btn { width: 34px; height: 34px; border-radius: 8px; border: none; background: none; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); cursor: pointer; }
+  .tool-btn:hover { background: var(--bg-sunken); color: var(--text-primary); }
+  .tool-btn.active { background: var(--gray-900); color: #fff; }
+  .tool-sep { width: 1px; height: 20px; background: var(--border-primary); margin: 0 4px; }
+
+  .zoom-ctrl {
+    position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 2px;
+    background: var(--bg-surface); border: 1px solid var(--border-primary); border-radius: 10px; box-shadow: var(--shadow-md); padding: 4px; z-index: 15;
+  }
+  .zoom-ctrl button { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .zoom-ctrl button:hover { background: var(--bg-sunken); }
+  .zoom-pct { font-size: 12px; font-weight: 600; color: var(--text-tertiary); width: 40px; text-align: center; font-variant-numeric: tabular-nums; }
+
+  /* ── Canvas sidebar: Log / Test tabs (replaces app sidebar while a canvas is open) ── */
+  .canvas-sidebar {
+    width: 280px; flex-shrink: 0; background: var(--bg-surface); border-right: 1px solid var(--border-primary);
+    display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+  }
+  .cs-tabs { display: flex; gap: 4px; padding: 14px 14px 0; border-bottom: 1px solid var(--border-primary); flex-shrink: 0; }
+  .cs-tab {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-tertiary);
+    background: none; border: none; padding: 8px 12px; border-radius: 8px 8px 0 0; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .cs-tab:hover { color: var(--text-primary); }
+  .cs-tab.active { color: var(--brand-700); border-bottom-color: var(--brand-600); background: var(--brand-50); }
+  .cs-panel { display: none; flex: 1; overflow-y: auto; padding: 16px; }
+  .cs-panel.active { display: block; }
+
+  .cs-heading { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+  .cs-sub { font-size: 12px; color: var(--text-tertiary); margin-bottom: 14px; line-height: 1.5; }
+
+  .log-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-primary); }
+  .log-row:last-child { border-bottom: none; }
+  .log-icon { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .log-icon.sent { background: var(--bg-sunken); color: var(--text-secondary); }
+  .log-icon.stopped { background: var(--success-50); color: var(--success-600); }
+  .log-icon.task { background: var(--brand-50); color: var(--brand-600); }
+  .log-lead { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+  .log-outcome { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; line-height: 1.4; }
+  .log-time { font-size: 11px; color: var(--text-placeholder); margin-top: 3px; }
+
+  .test-lead { padding: 10px 12px; border-radius: 10px; background: var(--bg-sunken); border: 1px solid var(--border-primary); margin-bottom: 10px; }
+  .test-lead.stopped { background: var(--success-25); border-color: var(--success-200); }
+  .test-lead-name { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
+  .test-lead-status { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
+  .test-lead.stopped .test-lead-status { color: var(--success-700); }
+  .test-sim-btn { margin-top: 8px; width: 100%; font-size: 12.5px; font-weight: 600; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; }
+  .test-sim-btn:hover { background: var(--bg-sunken); }
+  .test-sim-btn.done { border-color: var(--success-200); background: var(--success-50); color: var(--success-700); cursor: default; }
+
+  .cs-info-note { display: flex; gap: 8px; background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 10px; padding: 10px 12px; font-size: 11.5px; color: var(--brand-800); line-height: 1.5; margin-top: 14px; }
+
+  /* ── Node editor slideout ─────────────────────────── */
+  .editor-backdrop { position: fixed; inset: 0; background: rgba(16,24,40,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
+  .editor-backdrop.open { opacity: 1; pointer-events: auto; }
+  .editor-panel {
+    position: fixed; top: 0; right: 0; height: 100vh; width: 380px; max-width: calc(100vw - 24px);
+    background: var(--bg-surface); box-shadow: var(--shadow-lg); border-left: 1px solid var(--border-primary);
+    transform: translateX(100%); transition: transform .2s ease; z-index: 41; display: flex; flex-direction: column;
+  }
+  .editor-panel.open { transform: translateX(0); }
+  .editor-head { display: flex; align-items: center; gap: 10px; padding: 18px 18px 14px; border-bottom: 1px solid var(--border-primary); }
+  .editor-back-btn {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border-primary); background: var(--bg-surface);
+    display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: var(--text-secondary);
+  }
+  .editor-back-btn:hover { background: var(--bg-sunken); }
+  .editor-back-btn.show { display: flex; }
+  .editor-head-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .editor-head-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .editor-head-sub { font-size: 12px; color: var(--success-700); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+  .editor-body { padding: 18px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+
+  .picker-option {
+    display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--border-secondary); border-radius: 12px;
+    padding: 12px; cursor: pointer; background: var(--bg-surface); text-align: left; width: 100%;
+  }
+  .picker-option:hover:not(.disabled) { border-color: var(--brand-300); background: var(--brand-25, var(--brand-50)); }
+  .picker-option.disabled { opacity: .55; cursor: not-allowed; }
+  .picker-option-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .picker-option-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+  .picker-option-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
+  .picker-badge { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--text-placeholder); background: var(--bg-sunken); border: 1px solid var(--border-primary); border-radius: 999px; padding: 2px 7px; white-space: nowrap; align-self: center; }
+  .field-label { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+  .field-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 5px; line-height: 1.4; }
+  .field-select, .field-input, .field-textarea {
+    width: 100%; font-size: 14px; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border-secondary);
+    background: var(--bg-surface); color: var(--text-primary); appearance: none;
+  }
+  .field-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 34px; cursor: pointer; }
+  .field-select:disabled { color: var(--text-placeholder); cursor: not-allowed; background-color: var(--bg-sunken); }
+  .field-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+  .field-select:focus, .field-input:focus, .field-textarea:focus { outline: none; box-shadow: var(--focus-ring); border-color: var(--brand-300); }
+  .field-row { display: flex; gap: 10px; }
+  .field-row > * { flex: 1; }
+  .field-radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .field-radio {
+    display: flex; align-items: flex-start; gap: 9px; border: 1px solid var(--border-secondary); border-radius: 10px; padding: 10px 12px; cursor: pointer;
+  }
+  .field-radio.checked { border-color: var(--brand-400, var(--brand-600)); background: var(--brand-25, var(--brand-50)); }
+  .field-radio input { margin-top: 3px; accent-color: var(--brand-600); }
+  .field-radio-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .field-radio-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+  .field-radio.disabled { opacity: .55; cursor: not-allowed; }
+
+  .locked-banner {
+    display: flex; gap: 8px; background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: var(--brand-800); line-height: 1.5;
+  }
+  .locked-banner svg { flex-shrink: 0; margin-top: 1px; }
+
+  /* ── Modal / toast ─────────────────────────────────── */
+  .overlay { position: fixed; inset: 0; background: rgba(16,24,40,.55); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .overlay.open { display: flex; }
+  .modal { width: 380px; max-width: calc(100vw - 32px); background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 24px; }
+  .modal-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--error-50); color: var(--error-600); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .modal h3 { font-size: 17px; font-weight: 700; margin: 0 0 6px; }
+  .modal p { font-size: 14px; color: var(--text-tertiary); margin: 0 0 20px; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--success-600); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(8px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; z-index: 60; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Guided tour ─────────────────────────────────── */
+  .tour-highlight {
+    position: absolute; border-radius: 16px; pointer-events: none;
+    box-shadow: 0 0 0 4px var(--brand-400, var(--brand-600)), 0 0 0 9999px rgba(16,24,40,.62);
+    transition: top .28s ease, left .28s ease, width .28s ease, height .28s ease;
+    z-index: 30;
+  }
+  .tour-tooltip {
+    position: absolute; width: 292px; background: var(--gray-900); color: #fff; border-radius: 14px; box-shadow: var(--shadow-lg);
+    padding: 16px; z-index: 31; transition: top .28s ease, left .28s ease;
+  }
+  .tour-step-count { font-size: 11px; font-weight: 700; color: var(--brand-300, var(--brand-200)); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+  .tour-title { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .tour-desc { font-size: 12.5px; line-height: 1.55; color: #D0D5DD; margin-bottom: 14px; }
+  .tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tour-dots { display: flex; gap: 5px; }
+  .tour-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.25); }
+  .tour-dot.active { background: #fff; }
+  .tour-btns { display: flex; gap: 8px; }
+  .tour-btn { font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 7px; cursor: pointer; border: none; }
+  .tour-btn.skip { background: none; color: #94969C; }
+  .tour-btn.skip:hover { color: #fff; }
+  .tour-btn.next { background: #fff; color: var(--gray-900); }
+  .tour-btn.next:hover { background: #EAECF0; }
+  .tour-banner {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 32;
+    background: var(--gray-900); color: #fff; font-size: 12.5px; font-weight: 600; padding: 8px 16px; border-radius: 999px;
+    display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-lg);
+  }
+
+  .view { display: none; height: 100%; flex-direction: column; }
+  .view.active { display: flex; }
+  #view-list.active { display: block; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="shell">
+  <aside class="sidebar" id="app-sidebar">
+    <div class="brand-mark">
+      <div class="brand-logo">F</div>
+      <div>
+        <div class="brand-name">Fieldwork</div>
+        <div class="brand-sub">Dana's HVAC Co.</div>
+      </div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+        <span class="ph-tag">placeholder</span>
+      </div>
+      <div class="nav-item active clickable" id="nav-automations" tabindex="0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>
+        Automations
+      </div>
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12h8M12 8v8"/></svg>
+        Connectors
+        <span class="ph-tag">placeholder</span>
+      </div>
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+        <span class="ph-tag">placeholder</span>
+      </div>
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+        <span class="ph-tag">placeholder</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <div class="avatar">D</div>
+        <div class="profile-meta">
+          <span class="profile-name">Dana Reyes</span>
+          <span class="profile-role">Owner</span>
+        </div>
+      </div>
+      <div class="nav-item" tabindex="0" title="Not part of this prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Log out
+        <span class="ph-tag">placeholder</span>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="canvas-sidebar" id="canvas-sidebar" style="display:none;">
+    <div class="cs-tabs">
+      <button class="cs-tab active" id="cs-tab-log" data-tab="log">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Log
+      </button>
+      <button class="cs-tab" id="cs-tab-test" data-tab="test">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6"/><path d="M7 15h10"/></svg>
+        Test
+      </button>
+    </div>
+    <div class="cs-panel active" id="cs-panel-log">
+      <div class="cs-heading">Run history</div>
+      <div class="cs-sub">What actually happened the last few times this automation ran.</div>
+      <div id="log-list"></div>
+    </div>
+    <div class="cs-panel" id="cs-panel-test">
+      <div class="cs-heading">See the stop guarantee in action</div>
+      <div class="cs-sub">These are leads currently partway through this sequence. Simulate a reply to see what happens — nothing here affects the real automation.</div>
+      <div id="test-list"></div>
+      <div class="cs-info-note">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>A text reply stops every step below it automatically — see the "Guarded by stop-rule" tag and the red Stop branches on the canvas.</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ═══════ VIEW: LIST ═══════ -->
+    <section class="view active" id="view-list">
+      <div class="topbar">
+        <div>
+          <h1>Automations</h1>
+          <p class="page-desc">When something happens in a job, automatically follow up — no manual texting.</p>
+        </div>
+        <button class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          New automation
+        </button>
+      </div>
+      <div class="view-body">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="search-input" placeholder="Search automations…" />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Status</th><th>Created</th><th>Last ran</th><th class="num">Runs</th><th class="num">On</th>
+            </tr>
+          </thead>
+          <tbody id="automations-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════ VIEW: NODE CANVAS ═══════ -->
+    <section class="view" id="view-canvas">
+      <div class="topbar" style="align-items:flex-start;">
+        <div>
+          <div class="crumb">
+            <button id="crumb-back">Automations</button>
+            <span class="sep">›</span>
+            <span class="current" id="crumb-name">New lead follow-up (HVAC)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <button class="icon-btn" id="btn-back" aria-label="Back">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h1 id="canvas-title">New lead follow-up (HVAC)</h1>
+            <span id="canvas-status-badge"></span>
+          </div>
+        </div>
+        <div class="canvas-topbar-right">
+          <span class="autosave" id="autosave-indicator">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            Auto saved
+          </span>
+          <button class="btn btn-secondary" id="btn-restart-tour" style="display:none;">Restart tour</button>
+          <button class="btn btn-primary" id="btn-publish">Publish</button>
+        </div>
+      </div>
+
+      <div class="canvas-viewport">
+        <div class="canvas-outer" id="canvas-outer">
+          <div class="canvas-inner" id="canvas-inner">
+            <svg class="connector-svg" id="connector-svg"></svg>
+            <div id="nodes-layer"></div>
+            <div id="labels-layer"></div>
+          </div>
+        </div>
+
+        <div class="canvas-toolbar">
+          <button class="tool-btn active" title="Select"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/></svg></button>
+          <button class="tool-btn" title="Pan"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-4.53a1.5 1.5 0 0 1 2.12-2.12L6 15"/></svg></button>
+          <div class="tool-sep"></div>
+          <button class="tool-btn" title="Add text note (not part of this prototype)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></button>
+          <button class="tool-btn" title="Upload (not part of this prototype)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></button>
+          <button class="tool-btn" title="Frame select (not part of this prototype)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>
+          <div class="tool-sep"></div>
+          <button class="tool-btn" title="Test agent (not part of this prototype)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l16 9-16 9V3z"/></svg></button>
+        </div>
+
+        <div class="zoom-ctrl">
+          <button id="zoom-out" aria-label="Zoom out">−</button>
+          <span class="zoom-pct" id="zoom-pct">100%</span>
+          <button id="zoom-in" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Node editor slideout -->
+<div class="editor-backdrop" id="editor-backdrop"></div>
+<div class="editor-panel" id="editor-panel">
+  <div class="editor-head">
+    <button class="editor-back-btn" id="editor-back" aria-label="Back to step types">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="editor-head-icon" id="editor-head-icon"></div>
+    <div style="flex:1; min-width:0;">
+      <div class="editor-head-title" id="editor-head-title">Edit step</div>
+      <div class="editor-head-sub" id="editor-head-sub">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Auto saved
+      </div>
+    </div>
+    <button class="icon-btn" id="editor-close" aria-label="Close">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="editor-body" id="editor-body"></div>
+</div>
+
+<div class="overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    </div>
+    <h3 id="modal-title">Can't publish yet</h3>
+    <p id="modal-desc">This sequence has a path that doesn't end anywhere — it would run and then go silent.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-close">Close</button>
+      <button class="btn btn-primary" id="modal-fix">Take me there</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Published — every path ends somewhere, and replies stop it.</div>
+
+<!-- Guided tour -->
+<div class="tour-banner" id="tour-banner" style="display:none;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  Quick tour — this is a first-time walkthrough
+</div>
+<div class="tour-highlight" id="tour-highlight" style="display:none;"></div>
+<div class="tour-tooltip" id="tour-tooltip" style="display:none;"></div>
+
+<script>
+  /* ═══════════════════ ICONS ═══════════════════ */
+  const icons = {
+    trigger: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>`,
+    send: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`,
+    wait: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5 0 8-3.5 8-8a7.9 7.9 0 0 0-2-5.3"/><path d="M12 2C7 2 4 5.5 4 10a7.9 7.9 0 0 0 2 5.3"/><path d="M9 2h6M9 22h6"/></svg>`,
+    stop: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`,
+    task: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/></svg>`,
+    lock: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`,
+    warn: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`,
+    kebab: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg>`,
+    copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>`,
+    trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`,
+    info: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+    plus: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
+    back: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>`,
+  };
+
+  const headIconClass = { trigger: 'trigger', send: 'send', wait: 'wait', stop: 'stop', task: 'task' };
+  const headIcon = t => icons[t] || icons.send;
+  const headLabel = { trigger: 'When this happens', send: 'Then do this', wait: 'Condition', stop: 'Stop', task: 'Then do this · ends' };
+
+  /* ═══════════════════ AUTOMATIONS LIST ═══════════════════ */
+  const automations = [
+    { id: 'a1', name: 'New lead follow-up (HVAC)', created: 'Jun 2, 2026', lastRan: 'Jul 16, 2026', runs: 214, health: 'active', graph: 'g1', tour: true, isNew: true },
+    { id: 'a2', name: 'Quote sent — 3 day nudge', created: 'May 11, 2026', lastRan: 'Jul 10, 2026', runs: 58, health: 'active', graph: 'g2', tour: false },
+    { id: 'a3', name: 'Missed appointment text', created: 'Apr 22, 2026', lastRan: null, runs: 0, health: 'no-trigger', graph: 'g2', tour: false },
+    { id: 'a4', name: 'Seasonal maintenance reminder', created: 'Mar 14, 2026', lastRan: 'Jun 1, 2026', runs: 41, health: 'paused', graph: 'g2', tour: false },
+    { id: 'a5', name: 'Review request after job close', created: 'Feb 27, 2026', lastRan: 'Jul 15, 2026', runs: 130, health: 'active', graph: 'g2', tour: false },
+    { id: 'a6', name: 'Old promo blast (unused)', created: 'Nov 9, 2025', lastRan: null, runs: 0, health: 'no-trigger', graph: 'g2', tour: false },
+  ];
+
+  function badgeFor(health) {
+    if (health === 'no-trigger') return `<span class="badge badge-warning"><span class="dot"></span>Needs a trigger</span>`;
+    if (health === 'paused') return `<span class="badge badge-gray"><span class="dot"></span>Paused</span>`;
+    return `<span class="badge badge-success"><span class="dot"></span>Active</span>`;
+  }
+
+  function renderList() {
+    const body = document.getElementById('automations-body');
+    body.innerHTML = automations.map(a => `
+      <tr class="row-clickable" data-id="${a.id}">
+        <td>
+          <div class="row-name">${a.name}${a.isNew ? '<span class="new-pill">Start here</span>' : ''}</div>
+          ${a.health === 'no-trigger' ? `<div class="row-warning">${icons.warn}Won't run — no trigger set</div>` : ''}
+        </td>
+        <td>${badgeFor(a.health)}</td>
+        <td style="color:var(--text-tertiary)">${a.created}</td>
+        <td style="color:${a.lastRan ? 'var(--text-tertiary)' : 'var(--text-placeholder)'}">${a.lastRan || '—'}</td>
+        <td class="num">${a.runs}</td>
+        <td class="num">
+          <button class="toggle ${a.health === 'active' ? 'on' : ''}" data-id="${a.id}" ${a.health === 'no-trigger' ? 'disabled' : ''} aria-label="Toggle active"></button>
+        </td>
+      </tr>
+    `).join('');
+
+    body.querySelectorAll('tr.row-clickable').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.toggle')) return;
+        openCanvas(row.dataset.id);
+      });
+    });
+    body.querySelectorAll('.toggle').forEach(t => {
+      t.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const a = automations.find(x => x.id === t.dataset.id);
+        if (a.health === 'no-trigger') return;
+        a.health = a.health === 'active' ? 'paused' : 'active';
+        renderList();
+      });
+    });
+  }
+
+  /* ═══════════════════ NODE GRAPHS ═══════════════════ */
+  const CARD_W = 236;
+  const EXPECTED_OUT = { trigger: 1, send: 1, wait: 2, stop: 0, task: 0 };
+
+  function graph1() {
+    return {
+      nodes: [
+        { id: 'trigger', type: 'trigger', x: 40, y: 40, title: 'New website form submitted', detail: 'Trigger', triggerType: 'form' },
+        { id: 'send-1', type: 'send', x: 340, y: 40, title: 'Text the lead back', detail: 'Thanks for reaching out! We got your request and will call you shortly.', channel: 'sms' },
+        { id: 'wait-1', type: 'wait', x: 660, y: 40, title: 'Wait 2 days — did they reply?', detail: 'Checks for an SMS reply before continuing.', waitValue: 2, waitUnit: 'days', match: 'all' },
+        { id: 'stop-1', type: 'stop', x: 660, y: 300, title: 'Sequence stops here', detail: 'Lead replied by text.', reason: 'replied' },
+        { id: 'send-2', type: 'send', x: 980, y: 40, title: 'Send a follow-up text', detail: "Just checking in — still interested in getting this scheduled?", channel: 'sms', guarded: true },
+        { id: 'wait-2', type: 'wait', x: 1300, y: 40, title: 'Wait 2 days — did they reply?', detail: 'Checks for an SMS reply before continuing.', waitValue: 2, waitUnit: 'days', match: 'all' },
+        { id: 'stop-2', type: 'stop', x: 1300, y: 300, title: 'Sequence stops here', detail: 'Lead replied by text.', reason: 'replied' },
+        { id: 'task-1', type: 'task', x: 1620, y: 40, title: 'Create a call task for the team', detail: 'Assigned to: whoever is on lead follow-up today.', assignTo: 'oncall', terminal: true },
+      ],
+      connections: [
+        { from: 'trigger', to: 'send-1' },
+        { from: 'send-1', to: 'wait-1' },
+        { from: 'wait-1', to: 'send-2', label: 'No reply' },
+        { from: 'wait-1', to: 'stop-1', label: 'Replied', branch: true },
+        { from: 'send-2', to: 'wait-2' },
+        { from: 'wait-2', to: 'task-1', label: 'No reply' },
+        { from: 'wait-2', to: 'stop-2', label: 'Replied', branch: true },
+      ],
+    };
+  }
+
+  function graph2() {
+    return {
+      nodes: [
+        { id: 'trigger', type: 'trigger', x: 40, y: 40, title: 'Quote marked as sent', detail: 'Trigger', triggerType: 'quote' },
+        { id: 'wait-1', type: 'wait', x: 360, y: 40, title: 'Wait 3 days — did they reply?', detail: 'Checks for an SMS reply before continuing.', waitValue: 3, waitUnit: 'days', match: 'all' },
+        { id: 'stop-1', type: 'stop', x: 360, y: 300, title: 'Sequence stops here', detail: 'Customer replied by text.', reason: 'replied' },
+        { id: 'send-1', type: 'send', x: 680, y: 40, title: 'Send a reminder text', detail: "Following up on the quote we sent — happy to answer any questions before you decide.", channel: 'sms' },
+        { id: 'task-1', type: 'task', x: 1000, y: 40, title: 'Create a follow-up call task', detail: 'Assigned to: whoever is on lead follow-up today.', assignTo: 'oncall', terminal: true },
+      ],
+      connections: [
+        { from: 'trigger', to: 'wait-1' },
+        { from: 'wait-1', to: 'send-1', label: 'No reply' },
+        { from: 'wait-1', to: 'stop-1', label: 'Replied', branch: true },
+        { from: 'send-1', to: 'task-1' },
+      ],
+    };
+  }
+
+  const graphBuilders = { g1: graph1, g2: graph2 };
+
+  let state = null; // current open automation runtime state
+  let zoom = 1;
+  let selectedNodeId = null;
+  let openKebabId = null;
+  let pendingAdd = null; // { sourceId, side, newNodeId? } while the add-a-step flow is active
+
+  function initState(automation) {
+    const g = graphBuilders[automation.graph]();
+    return {
+      automationId: automation.id,
+      name: automation.name,
+      nodes: g.nodes.map(n => ({ ...n })),
+      connections: g.connections.map(c => ({ ...c })),
+      dupCounter: 1,
+    };
+  }
+
+  function nodeById(id) { return state.nodes.find(n => n.id === id); }
+
+  function portPoint(node, side) {
+    const y = node.y + 24;
+    const x = side === 'left' ? node.x : node.x + CARD_W;
+    return { x, y };
+  }
+
+  function bezierPath(p1, p2) {
+    const dx = Math.max(Math.abs(p2.x - p1.x) * 0.55, 40);
+    return `M ${p1.x} ${p1.y} C ${p1.x + dx} ${p1.y}, ${p2.x - dx} ${p2.y}, ${p2.x} ${p2.y}`;
+  }
+
+  function computeCanvasSize() {
+    let maxX = 800, maxY = 500;
+    state.nodes.forEach(n => {
+      maxX = Math.max(maxX, n.x + CARD_W + 60);
+      maxY = Math.max(maxY, n.y + 160);
+    });
+    return { w: maxX, h: maxY };
+  }
+
+  /* A node is "isolated" if it has zero connections at all (a fresh, unwired duplicate).
+     A node is "broken" if it has some connection but is missing a required branch —
+     e.g. a condition that lost its "no reply" or "replied" path. Both mean the
+     automation would run into this node and go silent. */
+  function computeNodeIssues() {
+    const validIds = new Set(state.nodes.map(n => n.id));
+    const conns = state.connections.filter(c => validIds.has(c.from) && validIds.has(c.to));
+    const outCount = {};
+    const connectedIds = new Set();
+    conns.forEach(c => {
+      outCount[c.from] = (outCount[c.from] || 0) + 1;
+      connectedIds.add(c.from);
+      connectedIds.add(c.to);
+    });
+    const isolated = new Set();
+    const broken = new Set();
+    state.nodes.forEach(n => {
+      const expected = EXPECTED_OUT[n.type] ?? 0;
+      const actual = outCount[n.id] || 0;
+      if (actual >= expected) return;
+      if (!connectedIds.has(n.id) && state.nodes.length > 1) isolated.add(n.id);
+      else broken.add(n.id);
+    });
+    return { isolated, broken, conns };
+  }
+
+  /* Where a hover "+" can appear: only sides that don't already have a wire,
+     and only for directions that mean something in this flow —
+     right = continue the flow, bottom = a condition's second branch,
+     left = wire something into a node that has no incoming connection yet. */
+  function computeOpenSlots() {
+    const validIds = new Set(state.nodes.map(n => n.id));
+    const conns = state.connections.filter(c => validIds.has(c.from) && validIds.has(c.to));
+    const mainOut = new Set(conns.filter(c => !c.branch).map(c => c.from));
+    const branchOut = new Set(conns.filter(c => c.branch).map(c => c.from));
+    const hasIncoming = new Set(conns.map(c => c.to));
+    const slots = {};
+    state.nodes.forEach(n => {
+      const canHaveMain = (EXPECTED_OUT[n.type] ?? 0) > 0;
+      slots[n.id] = {
+        right: canHaveMain && !mainOut.has(n.id),
+        bottom: n.type === 'wait' && !branchOut.has(n.id),
+        left: n.type !== 'trigger' && !hasIncoming.has(n.id),
+      };
+    });
+    return slots;
+  }
+
+  /* ── render node canvas ── */
+  function renderCanvas() {
+    const { w, h } = computeCanvasSize();
+    const inner = document.getElementById('canvas-inner');
+    inner.style.width = w + 'px';
+    inner.style.height = h + 'px';
+    inner.style.transform = `scale(${zoom})`;
+
+    const svg = document.getElementById('connector-svg');
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+    const { isolated, broken, conns } = computeNodeIssues();
+
+    let svgHtml = '';
+    conns.forEach(c => {
+      const from = nodeById(c.from), to = nodeById(c.to);
+      const p1 = portPoint(from, 'right'), p2 = portPoint(to, 'left');
+      const stroke = c.branch ? 'var(--error-300)' : 'var(--border-secondary)';
+      svgHtml += `<path d="${bezierPath(p1, p2)}" fill="none" stroke="${stroke}" stroke-width="2" stroke-dasharray="${c.branch ? '5 4' : 'none'}" />`;
+    });
+    svg.innerHTML = svgHtml;
+
+    const labelsLayer = document.getElementById('labels-layer');
+    labelsLayer.innerHTML = conns.filter(c => c.label).map(c => {
+      const from = nodeById(c.from), to = nodeById(c.to);
+      const p1 = portPoint(from, 'right'), p2 = portPoint(to, 'left');
+      const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+      const cls = c.branch ? 'replied' : 'no-reply';
+      return `<div class="branch-label ${cls}" style="left:${mx}px; top:${my}px;">${c.label}</div>`;
+    }).join('');
+
+    const openSlots = computeOpenSlots();
+
+    const nodesLayer = document.getElementById('nodes-layer');
+    nodesLayer.innerHTML = state.nodes.map(n => nodeCardHtml(n, {
+      unconnected: isolated.has(n.id),
+      broken: broken.has(n.id),
+      slots: openSlots[n.id] || {},
+    })).join('');
+
+    attachNodeHandlers();
+  }
+
+  function channelLabel(ch) { return ch === 'call' ? 'Call' : ch === 'email' ? 'Email' : 'SMS'; }
+
+  function nodeCardHtml(n, flags) {
+    const cls = ['node-card', n.type];
+    if (n.id === selectedNodeId) cls.push('selected');
+    if (flags.unconnected) cls.push('floating');
+    if (flags.broken) cls.push('broken');
+    const label = headLabel[n.type] + (n.type === 'send' ? ` · ${channelLabel(n.channel)}` : '');
+    const canDeleteAttr = n.type === 'trigger' ? 'disabled title="Every automation needs a trigger"' : '';
+    const slots = flags.slots || {};
+    const addBtn = (side, title) => slots[side]
+      ? `<button class="node-add ${side}" data-add-source="${n.id}" data-add-side="${side}" title="${title}" aria-label="${title}">${icons.plus}</button>`
+      : '';
+    return `
+      <div class="${cls.join(' ')}" style="left:${n.x}px; top:${n.y}px;" data-node="${n.id}">
+        ${n.type !== 'trigger' ? '<div class="port left"></div>' : ''}
+        ${!n.terminal ? '<div class="port right"></div>' : ''}
+        ${addBtn('right', 'Add the next step')}
+        ${addBtn('bottom', 'Add what happens if they reply')}
+        ${addBtn('left', 'Add a step before this one')}
+        <div class="node-head">
+          <div class="node-head-icon ${headIconClass[n.type]}">${headIcon(n.type)}</div>
+          <div class="node-head-label">${label}</div>
+          <div class="kebab-wrap">
+            <button class="kebab-btn" data-kebab="${n.id}" aria-label="Node options">${icons.kebab}</button>
+            <div class="kebab-menu ${openKebabId === n.id ? 'open' : ''}" data-kebab-menu="${n.id}">
+              <button class="kebab-item" data-action="duplicate" data-node="${n.id}">${icons.copy} Duplicate</button>
+              <button class="kebab-item destructive" data-action="delete" data-node="${n.id}" ${canDeleteAttr}>${icons.trash} Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="node-body">
+          <div class="node-title">${n.title}</div>
+          <div class="node-detail">${n.detail}</div>
+          ${n.guarded ? `<span class="node-guard">${icons.lock} Guarded by stop-rule</span>` : ''}
+          ${flags.unconnected ? `<div class="node-unconnected">${icons.warn} Not connected yet</div>` : ''}
+          ${flags.broken ? `<div class="node-error">${icons.warn} Doesn't lead anywhere — fix this path</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  function attachNodeHandlers() {
+    document.querySelectorAll('.node-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.kebab-wrap') || e.target.closest('.node-add')) return;
+        openEditor(card.dataset.node);
+      });
+    });
+    document.querySelectorAll('[data-add-source]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openAddPicker(btn.dataset.addSource, btn.dataset.addSide);
+      });
+    });
+    document.querySelectorAll('[data-kebab]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.kebab;
+        openKebabId = openKebabId === id ? null : id;
+        renderCanvas();
+      });
+    });
+    document.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        const id = btn.dataset.node;
+        if (btn.dataset.action === 'delete') deleteNode(id);
+        if (btn.dataset.action === 'duplicate') duplicateNode(id);
+        openKebabId = null;
+        renderCanvas();
+        renderTestTab();
+      });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.kebab-wrap') && openKebabId) { openKebabId = null; renderCanvas(); }
+  });
+
+  function deleteNode(id) {
+    const n = nodeById(id);
+    if (!n || n.type === 'trigger') return;
+    state.nodes = state.nodes.filter(x => x.id !== id);
+    state.connections = state.connections.filter(c => c.from !== id && c.to !== id);
+    if (selectedNodeId === id) selectedNodeId = null;
+  }
+
+  function duplicateNode(id) {
+    const n = nodeById(id);
+    if (!n) return;
+    const copy = { ...n, id: `${n.id}-copy-${state.dupCounter++}`, x: n.x + 24, y: n.y + 170, title: n.title + ' (copy)', terminal: false };
+    if (copy.type === 'trigger') copy.type = 'trigger'; // triggers can be duplicated but stay disconnected
+    state.nodes.push(copy);
+  }
+
+  /* ═══════════════════ ADD-A-STEP PICKER ═══════════════════ */
+  function pickerOptionsData() {
+    return [
+      { key: 'sms', type: 'send', channel: 'sms', icon: 'send', iconClass: 'send', title: 'Send SMS', desc: 'Text the lead automatically.' },
+      { key: 'email', type: 'send', channel: 'email', icon: 'send', iconClass: 'send', title: 'Send Email', desc: "Can't detect replies yet, so this can't guarantee a stop.", disabled: true, badge: 'Coming later' },
+      { key: 'wait', type: 'wait', icon: 'wait', iconClass: 'wait', title: 'Wait / Condition', desc: 'Pause, then branch based on whether they replied.' },
+      { key: 'task', type: 'task', icon: 'task', iconClass: 'task', title: 'Create task', desc: 'Hand this off to your team — ends this path.' },
+      { key: 'stop', type: 'stop', icon: 'stop', iconClass: 'stop', title: 'Stop', desc: 'End this path here — nothing sends after it.' },
+    ];
+  }
+
+  function nodeDefaults(type, channel) {
+    if (type === 'send') return { type: 'send', title: channel === 'email' ? 'Send an email' : 'Send a text', detail: 'Write your message…', channel: channel || 'sms' };
+    if (type === 'wait') return { type: 'wait', title: 'Wait 1 day — did they reply?', detail: 'Checks for an SMS reply before continuing.', waitValue: 1, waitUnit: 'days', match: 'all' };
+    if (type === 'stop') return { type: 'stop', title: 'Sequence stops here', detail: 'Lead replied by text.', reason: 'replied' };
+    if (type === 'task') return { type: 'task', title: 'Create a task for the team', detail: 'Assigned to: whoever is on lead follow-up today.', assignTo: 'oncall', terminal: true };
+    return { type: 'send', title: 'New step', detail: '' };
+  }
+
+  const SIDE_HINTS = {
+    right: 'Add the next step',
+    bottom: "Add what happens if they reply",
+    left: 'Add a step before this one',
+  };
+
+  function pickerBodyHtml() {
+    const opts = pickerOptionsData();
+    return `
+      <div class="cs-sub" style="margin:0 0 4px;">${SIDE_HINTS[pendingAdd.side] || 'Choose a step type'}</div>
+      ${opts.map((o, i) => `
+        <button class="picker-option ${o.disabled ? 'disabled' : ''}" data-picker-index="${i}" ${o.disabled ? 'disabled' : ''}>
+          <div class="node-head-icon picker-option-icon ${o.iconClass}">${icons[o.icon]}</div>
+          <div>
+            <div class="picker-option-title">${o.title}</div>
+            <div class="picker-option-desc">${o.desc}</div>
+          </div>
+          ${o.badge ? `<span class="picker-badge">${o.badge}</span>` : ''}
+        </button>
+      `).join('')}
+    `;
+  }
+
+  function openAddPicker(sourceId, side) {
+    pendingAdd = { sourceId, side };
+    selectedNodeId = sourceId;
+    document.getElementById('editor-back').classList.remove('show');
+    document.getElementById('editor-head-icon').className = 'editor-head-icon send';
+    document.getElementById('editor-head-icon').innerHTML = icons.plus.replace('width="13" height="13"', 'width="16" height="16"');
+    document.getElementById('editor-head-title').textContent = 'Add a step';
+    document.getElementById('editor-head-sub').style.display = 'none';
+    document.getElementById('editor-body').innerHTML = pickerBodyHtml();
+    document.querySelectorAll('[data-picker-index]:not(:disabled)').forEach(btn => {
+      btn.addEventListener('click', () => selectPickerType(Number(btn.dataset.pickerIndex)));
+    });
+    document.getElementById('editor-backdrop').classList.add('open');
+    document.getElementById('editor-panel').classList.add('open');
+    renderCanvas();
+  }
+
+  function selectPickerType(index) {
+    const opt = pickerOptionsData()[index];
+    if (!opt || opt.disabled || !pendingAdd) return;
+    const { sourceId, side } = pendingAdd;
+    const source = nodeById(sourceId);
+    if (!source) return;
+    const newId = `n${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    let x = source.x, y = source.y;
+    if (side === 'right') { x = source.x + 320; y = source.y; }
+    if (side === 'bottom') { x = source.x; y = source.y + 260; }
+    if (side === 'left') { x = source.x - 320; y = source.y; }
+
+    const newNode = { id: newId, x, y, ...nodeDefaults(opt.type, opt.channel) };
+    state.nodes.push(newNode);
+
+    if (side === 'left') {
+      state.connections.push({ from: newId, to: sourceId });
+    } else if (side === 'bottom') {
+      state.connections.push({ from: sourceId, to: newId, label: 'Replied', branch: true });
+    } else {
+      const conn = { from: sourceId, to: newId };
+      if (source.type === 'wait') conn.label = 'No reply';
+      state.connections.push(conn);
+    }
+
+    pendingAdd = { sourceId, side, newNodeId: newId };
+    renderCanvas();
+    renderTestTab();
+    openEditor(newId, { fromAdd: true });
+  }
+
+  /* ═══════════════════ NODE EDITOR SLIDEOUT ═══════════════════ */
+  function openEditor(id, opts) {
+    opts = opts || {};
+    if (!opts.fromAdd) pendingAdd = null;
+    selectedNodeId = id;
+    renderCanvas();
+    const n = nodeById(id);
+    if (!n) return;
+
+    document.getElementById('editor-head-sub').style.display = '';
+    document.getElementById('editor-back').classList.toggle('show', !!opts.fromAdd);
+
+    document.getElementById('editor-head-icon').className = `editor-head-icon ${headIconClass[n.type]}`;
+    document.getElementById('editor-head-icon').innerHTML = headIcon(n.type).replace('width="14" height="14"', 'width="16" height="16"');
+    document.getElementById('editor-head-title').textContent =
+      n.type === 'trigger' ? 'Edit trigger' : n.type === 'send' ? 'Edit message' : n.type === 'wait' ? 'Edit condition' : n.type === 'stop' ? 'Stop step' : 'Edit task';
+
+    document.getElementById('editor-body').innerHTML = editorBodyHtml(n);
+    attachEditorHandlers(n);
+
+    document.getElementById('editor-backdrop').classList.add('open');
+    document.getElementById('editor-panel').classList.add('open');
+  }
+
+  document.getElementById('editor-back').addEventListener('click', () => {
+    if (!pendingAdd || !pendingAdd.newNodeId) return;
+    const { sourceId, side, newNodeId } = pendingAdd;
+    state.nodes = state.nodes.filter(x => x.id !== newNodeId);
+    state.connections = state.connections.filter(c => c.from !== newNodeId && c.to !== newNodeId);
+    renderCanvas();
+    renderTestTab();
+    openAddPicker(sourceId, side);
+  });
+
+  function closeEditor() {
+    selectedNodeId = null;
+    pendingAdd = null;
+    document.getElementById('editor-back').classList.remove('show');
+    document.getElementById('editor-backdrop').classList.remove('open');
+    document.getElementById('editor-panel').classList.remove('open');
+    renderCanvas();
+  }
+
+  function editorBodyHtml(n) {
+    if (n.type === 'trigger') {
+      return `
+        <div>
+          <label class="field-label">Trigger type</label>
+          <select class="field-select" data-field="triggerType">
+            <option value="form" ${n.triggerType === 'form' ? 'selected' : ''}>New website form submitted</option>
+            <option value="missed-call" ${n.triggerType === 'missed-call' ? 'selected' : ''}>Missed call logged</option>
+            <option value="quote" ${n.triggerType === 'quote' ? 'selected' : ''}>Quote marked as sent</option>
+          </select>
+          <div class="field-hint">This automation starts the moment this happens. Every automation needs exactly one trigger.</div>
+        </div>
+      `;
+    }
+    if (n.type === 'send') {
+      return `
+        <div>
+          <label class="field-label">Channel</label>
+          <div class="field-radio-group">
+            <label class="field-radio ${n.channel === 'sms' ? 'checked' : ''}">
+              <input type="radio" name="channel" value="sms" ${n.channel === 'sms' ? 'checked' : ''}>
+              <div><div class="field-radio-title">Text (SMS)</div><div class="field-radio-desc">Replies are detected reliably — this is what the stop-rule checks.</div></div>
+            </label>
+            <label class="field-radio disabled">
+              <input type="radio" name="channel" value="call" disabled>
+              <div><div class="field-radio-title">Call</div><div class="field-radio-desc">Coming later — only logged if made through a tracked number.</div></div>
+            </label>
+            <label class="field-radio disabled">
+              <input type="radio" name="channel" value="email" disabled>
+              <div><div class="field-radio-title">Email</div><div class="field-radio-desc">Coming later — replies can't be detected yet, so this can't guarantee a stop.</div></div>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Message</label>
+          <textarea class="field-textarea" data-field="detail">${n.detail}</textarea>
+        </div>
+        ${n.guarded ? `
+        <div class="locked-banner">${icons.lock}<div><strong>Guarded by the stop-rule.</strong> This message can't send if the lead already replied — that check happens automatically and can't be turned off.</div></div>
+        ` : ''}
+      `;
+    }
+    if (n.type === 'wait') {
+      return `
+        <div class="field-row">
+          <div>
+            <label class="field-label">Wait</label>
+            <input class="field-input" type="number" min="1" data-field="waitValue" value="${n.waitValue}">
+          </div>
+          <div>
+            <label class="field-label">Unit</label>
+            <select class="field-select" data-field="waitUnit">
+              <option value="hours" ${n.waitUnit === 'hours' ? 'selected' : ''}>Hours</option>
+              <option value="days" ${n.waitUnit === 'days' ? 'selected' : ''}>Days</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Then check</label>
+          <select class="field-select" disabled><option>Did the lead reply? (by text)</option></select>
+          <div class="field-hint">Only SMS replies can be checked right now — see the stop-rule banner for why.</div>
+        </div>
+        <div>
+          <label class="field-label">Match</label>
+          <select class="field-select" data-field="match">
+            <option value="all" ${n.match === 'all' ? 'selected' : ''}>All conditions (AND)</option>
+            <option value="any" ${n.match === 'any' ? 'selected' : ''}>Any condition (OR)</option>
+          </select>
+          <div class="field-hint">There's one condition here, so this won't change behavior yet — it matters once you add more.</div>
+        </div>
+      `;
+    }
+    if (n.type === 'stop') {
+      return `
+        <div class="locked-banner">${icons.stop}<div><strong>This branch ends the sequence.</strong> Nothing sends after this point for this lead.</div></div>
+        <div>
+          <label class="field-label">Reason</label>
+          <select class="field-select" data-field="reason">
+            <option value="replied" ${n.reason === 'replied' ? 'selected' : ''}>Lead replied</option>
+            <option value="manual" ${n.reason === 'manual' ? 'selected' : ''}>Manually paused</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Note (optional)</label>
+          <textarea class="field-textarea" data-field="detail">${n.detail}</textarea>
+        </div>
+      `;
+    }
+    if (n.type === 'task') {
+      return `
+        <div>
+          <label class="field-label">Assign to</label>
+          <select class="field-select" data-field="assignTo">
+            <option value="oncall" ${n.assignTo === 'oncall' ? 'selected' : ''}>Whoever's on call today</option>
+            <option value="frontdesk" ${n.assignTo === 'frontdesk' ? 'selected' : ''}>Front desk</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Task description</label>
+          <textarea class="field-textarea" data-field="detail">${n.detail}</textarea>
+        </div>
+        <div class="locked-banner">${icons.info}<div>This is the last step in this path — publishing checks that every path ends with a task or a stop, never a dead end.</div></div>
+      `;
+    }
+    return '';
+  }
+
+  function attachEditorHandlers(n) {
+    document.getElementById('editor-body').querySelectorAll('[data-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        n[el.dataset.field] = el.tagName === 'INPUT' && el.type === 'number' ? Number(el.value) : el.value;
+        if (el.dataset.field === 'detail' || el.dataset.field === 'triggerType' || el.dataset.field === 'waitValue' || el.dataset.field === 'waitUnit') {
+          syncNodeTitle(n);
+        }
+        renderCanvas();
+        flashAutosave();
+      });
+      el.addEventListener('change', () => {
+        n[el.dataset.field] = el.tagName === 'INPUT' && el.type === 'number' ? Number(el.value) : el.value;
+        syncNodeTitle(n);
+        renderCanvas();
+        flashAutosave();
+      });
+    });
+    document.getElementById('editor-body').querySelectorAll('input[name="channel"]').forEach(el => {
+      el.addEventListener('change', () => {
+        if (!el.disabled) { n.channel = el.value; renderCanvas(); flashAutosave(); }
+      });
+    });
+  }
+
+  function syncNodeTitle(n) {
+    if (n.type === 'trigger') {
+      const map = { form: 'New website form submitted', 'missed-call': 'Missed call logged', quote: 'Quote marked as sent' };
+      n.title = map[n.triggerType];
+    }
+    if (n.type === 'wait') {
+      n.title = `Wait ${n.waitValue} ${n.waitUnit === 'days' ? (n.waitValue == 1 ? 'day' : 'days') : (n.waitValue == 1 ? 'hour' : 'hours')} — did they reply?`;
+    }
+  }
+
+  function flashAutosave() {
+    const el = document.getElementById('autosave-indicator');
+    el.style.opacity = '0.4';
+    setTimeout(() => { el.style.opacity = '1'; }, 180);
+  }
+
+  /* ═══════════════════ PUBLISH GUARDRAIL ═══════════════════ */
+  function findDeadEndNode() {
+    const { isolated, broken } = computeNodeIssues();
+    const badId = [...broken, ...isolated][0];
+    return badId ? nodeById(badId) : null;
+  }
+
+  function publish() {
+    const deadEnd = findDeadEndNode();
+    if (deadEnd) {
+      document.getElementById('modal-title').textContent = "Can't publish yet";
+      document.getElementById('modal-desc').textContent = `"${deadEnd.title}" doesn't lead anywhere — it would run and then go silent.`;
+      document.getElementById('modal-fix').dataset.node = deadEnd.id;
+      document.getElementById('modal-overlay').classList.add('open');
+      return;
+    }
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('open'));
+  document.getElementById('modal-fix').addEventListener('click', (e) => {
+    document.getElementById('modal-overlay').classList.remove('open');
+    const id = e.currentTarget.dataset.node;
+    if (id) scrollNodeIntoView(id, () => openEditor(id));
+  });
+  document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') e.currentTarget.classList.remove('open'); });
+  document.getElementById('btn-publish').addEventListener('click', publish);
+  document.getElementById('editor-close').addEventListener('click', closeEditor);
+  document.getElementById('editor-backdrop').addEventListener('click', closeEditor);
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.getElementById('modal-overlay').classList.remove('open');
+    closeEditor();
+  });
+
+  function scrollNodeIntoView(id, cb) {
+    const n = nodeById(id);
+    const outer = document.getElementById('canvas-outer');
+    if (n) outer.scrollTo({ left: Math.max(0, n.x * zoom - 200), top: Math.max(0, n.y * zoom - 100), behavior: 'smooth' });
+    setTimeout(() => cb && cb(), 350);
+  }
+
+  /* ═══════════════════ ZOOM ═══════════════════ */
+  function setZoom(z) {
+    zoom = Math.min(1.25, Math.max(0.6, z));
+    document.getElementById('zoom-pct').textContent = Math.round(zoom * 100) + '%';
+    renderCanvas();
+  }
+  document.getElementById('zoom-in').addEventListener('click', () => setZoom(zoom + 0.1));
+  document.getElementById('zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
+
+  /* ═══════════════════ GUIDED TOUR ═══════════════════ */
+  function tourSteps() {
+    return [
+      { node: 'trigger', title: 'Every automation starts with a trigger', desc: 'This one fires the moment a new lead submits your website form — nothing runs before this.' },
+      { node: 'send-1', title: 'Add what happens next', desc: 'The first message goes out right after the trigger fires. Click any card like this to edit it.' },
+      { node: 'wait-1', title: 'This is a condition', desc: 'It waits, then checks for a reply. Two things can happen next — follow the lines out of this card.' },
+      { node: 'stop-1', title: 'If they reply, it stops here', desc: 'Red, dashed connectors always lead to a stop. Nothing sends after this point for that lead — no exceptions.' },
+      { node: 'send-2', title: 'Guarded messages are marked', desc: "This tag means the message can't send if the lead already replied. You don't configure that — it's automatic." },
+      { node: 'task-1', title: 'Every path has to end somewhere', desc: 'This is the last step — a task for your team. Publishing checks that no path is left hanging.' },
+      { node: null, el: 'btn-publish', title: "Publish when you're ready", desc: "If any path is incomplete, we'll block publishing and take you straight to the problem." },
+    ];
+  }
+
+  let tourIndex = 0;
+  let tourActive = false;
+
+  function startTour() {
+    tourActive = true;
+    tourIndex = 0;
+    document.getElementById('tour-banner').style.display = 'flex';
+    showTourStep();
+  }
+
+  function endTour() {
+    tourActive = false;
+    document.getElementById('tour-banner').style.display = 'none';
+    document.getElementById('tour-highlight').style.display = 'none';
+    document.getElementById('tour-tooltip').style.display = 'none';
+    document.getElementById('btn-restart-tour').style.display = 'inline-flex';
+  }
+
+  function showTourStep() {
+    const steps = tourSteps();
+    const step = steps[tourIndex];
+    const highlight = document.getElementById('tour-highlight');
+    const tooltip = document.getElementById('tour-tooltip');
+
+    const positionOver = (rect) => {
+      highlight.style.display = 'block';
+      highlight.style.left = rect.left + 'px';
+      highlight.style.top = rect.top + 'px';
+      highlight.style.width = rect.width + 'px';
+      highlight.style.height = rect.height + 'px';
+
+      let ttLeft = rect.left + rect.width + 18;
+      let ttTop = rect.top;
+      if (ttLeft + 292 > window.innerWidth - 12) ttLeft = Math.max(12, rect.left - 292 - 18);
+      if (ttTop + 220 > window.innerHeight) ttTop = Math.max(12, window.innerHeight - 232);
+      tooltip.style.left = ttLeft + 'px';
+      tooltip.style.top = ttTop + 'px';
+      tooltip.style.display = 'block';
+
+      tooltip.innerHTML = `
+        <div class="tour-step-count">Step ${tourIndex + 1} of ${steps.length}</div>
+        <div class="tour-title">${step.title}</div>
+        <div class="tour-desc">${step.desc}</div>
+        <div class="tour-actions">
+          <div class="tour-dots">${steps.map((_, i) => `<span class="tour-dot ${i === tourIndex ? 'active' : ''}"></span>`).join('')}</div>
+          <div class="tour-btns">
+            <button class="tour-btn skip" id="tour-skip">Skip</button>
+            <button class="tour-btn next" id="tour-next">${tourIndex === steps.length - 1 ? 'Got it' : 'Next'}</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('tour-skip').addEventListener('click', endTour);
+      document.getElementById('tour-next').addEventListener('click', () => {
+        if (tourIndex >= steps.length - 1) { endTour(); return; }
+        tourIndex++;
+        showTourStep();
+      });
+    };
+
+    if (step.node) {
+      scrollNodeIntoView(step.node, () => {
+        const el = document.querySelector(`[data-node="${step.node}"]`);
+        if (el) positionOver(el.getBoundingClientRect());
+      });
+    } else if (step.el) {
+      const el = document.getElementById(step.el);
+      if (el) positionOver(el.getBoundingClientRect());
+    }
+  }
+
+  document.getElementById('btn-restart-tour').addEventListener('click', startTour);
+
+  /* ═══════════════════ RUN HISTORY (Log tab) ═══════════════════ */
+  const RUN_HISTORY = {
+    g1: [
+      { name: 'Marcus D.', icon: 'stopped', outcome: 'Replied after the first text — sequence stopped', time: 'Jul 16, 10:02 AM' },
+      { name: 'Priya S.', icon: 'task', outcome: 'No reply after both texts — call task created', time: 'Jul 15, 3:40 PM' },
+      { name: 'Devon R.', icon: 'stopped', outcome: 'Replied after the follow-up text — sequence stopped', time: 'Jul 14, 9:15 AM' },
+      { name: 'Casey L.', icon: 'task', outcome: 'No reply after both texts — call task created', time: 'Jul 12, 11:00 AM' },
+      { name: 'Amara N.', icon: 'sent', outcome: 'First text sent — waiting for reply', time: 'Jul 16, 8:47 AM' },
+    ],
+    g2: [
+      { name: 'Whitman Co.', icon: 'stopped', outcome: 'Replied to the quote — sequence stopped', time: 'Jul 11, 2:20 PM' },
+      { name: 'Alvarez Plumbing', icon: 'task', outcome: 'No reply after reminder — call task created', time: 'Jul 9, 1:05 PM' },
+      { name: 'Ferreira HVAC', icon: 'sent', outcome: 'Reminder text sent — waiting for reply', time: 'Jul 16, 9:30 AM' },
+    ],
+  };
+
+  function renderLogTab() {
+    const list = RUN_HISTORY[state.graphKey] || [];
+    document.getElementById('log-list').innerHTML = list.map(r => `
+      <div class="log-row">
+        <div class="log-icon ${r.icon}">${r.icon === 'stopped' ? icons.stop : r.icon === 'task' ? icons.task : icons.send}</div>
+        <div>
+          <div class="log-lead">${r.name}</div>
+          <div class="log-outcome">${r.outcome}</div>
+          <div class="log-time">${r.time}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ═══════════════════ TEST TAB (moved from the old on-canvas proof card) ═══════════════════ */
+  const TEST_LEAD_NAMES = ['Marcus D.', 'Priya S.', 'Jordan K.'];
+  let testLeadState = {};
+
+  function renderTestTab() {
+    const waitNodes = state.nodes.filter(n => n.type === 'wait');
+    document.getElementById('test-list').innerHTML = waitNodes.map((wn, i) => {
+      const name = TEST_LEAD_NAMES[i % TEST_LEAD_NAMES.length];
+      const leadId = 'test-' + wn.id;
+      const stopped = testLeadState[leadId];
+      const outgoing = state.connections.find(c => c.from === wn.id && !c.branch);
+      const nextTitle = outgoing ? nodeById(outgoing.to)?.title : 'the next step';
+      return `
+        <div class="test-lead ${stopped ? 'stopped' : ''}">
+          <div class="test-lead-name">${name}</div>
+          <div class="test-lead-status">${stopped ? `Replied — stopped before "${nextTitle}"` : `Currently at: ${wn.title}`}</div>
+          <button class="test-sim-btn ${stopped ? 'done' : ''}" data-test-lead="${leadId}" ${stopped ? 'disabled' : ''}>${stopped ? 'Stopped ✓' : 'Simulate reply'}</button>
+        </div>`;
+    }).join('') || `<div class="cs-sub" style="margin:0;">No condition steps in this sequence yet — add a "Wait" step to test the stop guarantee.</div>`;
+
+    document.querySelectorAll('[data-test-lead]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        testLeadState[btn.dataset.testLead] = true;
+        renderTestTab();
+      });
+    });
+  }
+
+  function switchCanvasTab(tab) {
+    document.querySelectorAll('.cs-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.getElementById('cs-panel-log').classList.toggle('active', tab === 'log');
+    document.getElementById('cs-panel-test').classList.toggle('active', tab === 'test');
+  }
+  document.getElementById('cs-tab-log').addEventListener('click', () => switchCanvasTab('log'));
+  document.getElementById('cs-tab-test').addEventListener('click', () => switchCanvasTab('test'));
+
+  /* ═══════════════════ VIEW SWITCHING ═══════════════════ */
+  function openCanvas(id) {
+    const a = automations.find(x => x.id === id) || automations[0];
+    state = initState(a);
+    state.graphKey = a.graph;
+    zoom = 1;
+    selectedNodeId = null;
+    openKebabId = null;
+    testLeadState = {};
+
+    document.getElementById('crumb-name').textContent = a.name;
+    document.getElementById('canvas-title').textContent = a.name;
+    document.getElementById('canvas-status-badge').innerHTML = badgeFor(a.health);
+    document.getElementById('zoom-pct').textContent = '100%';
+    document.getElementById('btn-restart-tour').style.display = 'none';
+
+    document.getElementById('app-sidebar').style.display = 'none';
+    document.getElementById('canvas-sidebar').style.display = 'flex';
+    switchCanvasTab('log');
+
+    document.getElementById('view-list').classList.remove('active');
+    document.getElementById('view-canvas').classList.add('active');
+
+    renderCanvas();
+    renderLogTab();
+    renderTestTab();
+    document.getElementById('canvas-outer').scrollTo(0, 0);
+
+    if (a.tour) {
+      setTimeout(startTour, 350);
+    }
+  }
+
+  function backToList() {
+    endTour();
+    document.getElementById('canvas-sidebar').style.display = 'none';
+    document.getElementById('app-sidebar').style.display = 'flex';
+    document.getElementById('view-canvas').classList.remove('active');
+    document.getElementById('view-list').classList.add('active');
+  }
+
+  document.getElementById('btn-back').addEventListener('click', backToList);
+  document.getElementById('crumb-back').addEventListener('click', backToList);
+  document.getElementById('nav-automations').addEventListener('click', backToList);
+
+  window.addEventListener('resize', () => { if (tourActive) showTourStep(); });
+
+  renderList();
+</script>

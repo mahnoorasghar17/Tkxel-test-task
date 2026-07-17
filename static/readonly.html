@@ -1,0 +1,279 @@
+<meta charset="UTF-8" />
+<title>Fieldwork — Shared automation (read-only)</title>
+<style>
+  :root {
+    --brand-25: #FCFAFF; --brand-50: #F9F5FF; --brand-100: #F4EBFF; --brand-200: #E9D7FE;
+    --brand-300: #D6BBFB; --brand-600: #7F56D9; --brand-700: #6941C6; --brand-800: #53389E;
+
+    --gray-25: #FCFCFD; --gray-50: #F9FAFB; --gray-100: #F2F4F7; --gray-200: #EAECF0;
+    --gray-300: #D0D5DD; --gray-400: #98A2B3; --gray-500: #667085; --gray-600: #475467;
+    --gray-700: #344054; --gray-800: #1D2939; --gray-900: #101828;
+
+    --success-25: #F6FEF9; --success-50: #ECFDF3; --success-200: #A9EFC5; --success-600: #079455; --success-700: #067647;
+    --warning-50: #FFFAEB; --warning-200: #FEDF89; --warning-600: #DC6803; --warning-700: #B54708;
+    --error-25: #FFFBFA; --error-50: #FEF3F2; --error-200: #FECDCA; --error-600: #D92D20; --error-700: #B42318;
+
+    --bg-page: var(--gray-50);
+    --bg-surface: #FFFFFF;
+    --bg-sunken: var(--gray-50);
+    --text-primary: var(--gray-900);
+    --text-secondary: var(--gray-700);
+    --text-tertiary: var(--gray-500);
+    --text-placeholder: var(--gray-400);
+    --border-primary: var(--gray-200);
+    --border-secondary: var(--gray-300);
+    --focus-ring: 0 0 0 4px var(--brand-100);
+    --shadow-sm: 0 1px 3px rgba(16,24,40,.10), 0 1px 2px rgba(16,24,40,.06);
+    --shadow-lg: 0 12px 16px -4px rgba(16,24,40,.10);
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-page: #0C111D; --bg-surface: #101828; --bg-sunken: #161B26;
+      --text-primary: #F5F5F6; --text-secondary: #CECFD2; --text-tertiary: #94969C; --text-placeholder: #61646C;
+      --border-primary: #1F242F; --border-secondary: #333741;
+      --brand-50: #2C1C5F; --brand-100: #3a2570; --brand-200: #53389E;
+      --success-25: #12261E; --error-25: #2b1615; --error-50: #3a1a17;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 12px 16px -4px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-page: #0C111D; --bg-surface: #101828; --bg-sunken: #161B26;
+    --text-primary: #F5F5F6; --text-secondary: #CECFD2; --text-tertiary: #94969C; --text-placeholder: #61646C;
+    --border-primary: #1F242F; --border-secondary: #333741;
+    --brand-50: #2C1C5F; --brand-100: #3a2570; --brand-200: #53389E;
+    --success-25: #12261E; --error-25: #2b1615; --error-50: #3a1a17;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 12px 16px -4px rgba(0,0,0,.5);
+  }
+  :root[data-theme="light"] {
+    --bg-page: var(--gray-50); --bg-surface: #FFFFFF; --bg-sunken: var(--gray-50);
+    --text-primary: var(--gray-900); --text-secondary: var(--gray-700); --text-tertiary: var(--gray-500); --text-placeholder: var(--gray-400);
+    --border-primary: var(--gray-200); --border-secondary: var(--gray-300);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: var(--bg-page); color: var(--text-primary); }
+  ::selection { background: var(--brand-200); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 8px; }
+
+  .viewer-strip {
+    display: flex; align-items: center; gap: 10px; padding: 10px 24px;
+    background: var(--gray-900); color: #fff; font-size: 13px;
+  }
+  .viewer-strip .who { font-weight: 600; }
+  .viewer-strip .sep { opacity: .4; }
+  .viewer-strip .ro-pill {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16);
+    border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600;
+  }
+
+  .topbar {
+    padding: 20px 32px; background: var(--bg-surface); border-bottom: 1px solid var(--border-primary);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  }
+  .eyebrow { font-size: 12px; font-weight: 700; color: var(--brand-700); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px; }
+  h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin: 0; text-wrap: balance; }
+  .page-desc { font-size: 14px; color: var(--text-tertiary); margin: 6px 0 0; max-width: 520px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 8px; cursor: not-allowed; border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-placeholder); }
+  .btn[title] { position: relative; }
+
+  .canvas-wrap { max-width: 720px; margin: 0 auto; padding: 24px 24px 64px; }
+
+  .stop-banner { position: sticky; top: 12px; z-index: 5; background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+  .stop-banner-row { display: flex; align-items: center; gap: 10px; }
+  .stop-banner-row strong { font-size: 14px; font-weight: 700; color: var(--brand-800); flex: 1; }
+  .stop-banner-detail { margin-top: 10px; padding-left: 30px; font-size: 13px; color: var(--brand-700); line-height: 1.55; display: none; }
+  .stop-banner-detail.open { display: block; }
+  .info-btn { background: none; border: none; cursor: pointer; display: flex; color: var(--brand-700); padding: 2px; border-radius: 6px; }
+  .info-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  .step-card { background: var(--bg-surface); border: 1px solid var(--border-primary); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 16px; display: flex; gap: 12px; align-items: flex-start; position: relative; cursor: default; }
+  .step-card.trigger { border-color: var(--brand-200); }
+  .step-card.terminal { border-radius: 16px 16px 24px 24px; }
+  .step-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-icon.trigger { background: var(--brand-50); color: var(--brand-600); }
+  .step-icon.send { background: var(--bg-sunken); color: var(--text-secondary); }
+  .step-icon.task { background: var(--success-50); color: var(--success-600); }
+  .step-eyebrow { font-size: 11px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .step-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 4px; }
+  .step-detail { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .guard-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--brand-700); background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 999px; padding: 2px 8px; }
+
+  .connector { width: 2px; height: 20px; background: var(--border-secondary); margin-left: 27px; }
+
+  .wait-pill { align-self: flex-start; margin-left: 8px; background: var(--bg-sunken); border: 1px solid var(--border-primary); border-radius: 999px; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; }
+  .wait-pill span { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+
+  /* hover explainer */
+  .explain {
+    position: absolute; left: 100%; top: 0; margin-left: 12px; width: 220px;
+    background: var(--gray-900); color: #fff; font-size: 12px; line-height: 1.5;
+    padding: 10px 12px; border-radius: 8px; box-shadow: var(--shadow-lg);
+    opacity: 0; pointer-events: none; transform: translateX(-4px); transition: opacity .12s ease, transform .12s ease;
+    z-index: 4;
+  }
+  .step-card:hover .explain { opacity: 1; transform: translateX(0); }
+  @media (max-width: 980px) { .explain { display: none; } }
+
+  .proof-card { margin-top: 40px; background: var(--bg-surface); border: 1px solid var(--border-primary); border-radius: 12px; padding: 20px; }
+  .proof-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .proof-sub { font-size: 13px; color: var(--text-tertiary); margin-bottom: 16px; }
+  .lead-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; background: var(--bg-sunken); border: 1px solid var(--border-primary); }
+  .lead-row + .lead-row { margin-top: 12px; }
+  .lead-row.stopped { background: var(--success-25); border-color: var(--success-200); }
+  .lead-name { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .lead-status { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+  .lead-row.stopped .lead-status { color: var(--success-700); }
+  .sim-btn { font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; }
+  .sim-btn:hover { background: var(--bg-sunken); }
+  .sim-btn.done { border-color: var(--success-200); background: var(--success-50); color: var(--success-700); cursor: default; }
+  .sim-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  .footnote { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 12px 16px; border-radius: 10px; background: var(--bg-sunken); border: 1px solid var(--border-primary); font-size: 12px; color: var(--text-tertiary); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="viewer-strip">
+  <span class="who">Mike T.</span>
+  <span class="sep">·</span>
+  <span>Dispatcher</span>
+  <span class="ro-pill">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    Read-only — shared by Dana
+  </span>
+</div>
+
+<div class="topbar">
+  <div>
+    <p class="eyebrow">Shared automation</p>
+    <h1>New lead follow-up (HVAC)</h1>
+    <p class="page-desc">You're viewing how this sequence works. Nothing here can be changed from this link.</p>
+  </div>
+  <button class="btn" title="Read-only link — ask Dana to make changes">Request an edit</button>
+</div>
+
+<div class="canvas-wrap">
+  <div class="stop-banner">
+    <div class="stop-banner-row">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-700)"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      <strong>Stops immediately if the lead replies by text</strong>
+      <button class="info-btn" id="btn-banner-info" aria-label="More detail">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      </button>
+    </div>
+    <div class="stop-banner-detail" id="banner-detail">
+      This applies to every step below — no one needs to configure it per step.<br>
+      A text reply stops everything right away. An email reply can't be detected yet, so this guarantee only covers texts for now.
+    </div>
+  </div>
+
+  <div id="steps-container"></div>
+</div>
+
+<script>
+  const icons = {
+    trigger: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>`,
+    send: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`,
+    task: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-4"/></svg>`,
+    clock: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+  };
+
+  const steps = [
+    { id: 'trigger', kind: 'trigger', eyebrow: 'When this happens', title: 'When a new lead submits the website form', detail: 'Trigger', explain: 'Fires the moment the website form is submitted — no delay before step one.' },
+    { id: 'send-1', kind: 'send', eyebrow: 'Then do this', title: 'Text the lead back', detail: '"Thanks for reaching out! We got your request and will call you shortly."', explain: 'Goes out immediately after the trigger fires.' },
+    { id: 'wait-1', kind: 'wait', title: 'Wait 2 days — did they reply?' },
+    { id: 'send-2', kind: 'send', eyebrow: 'Then do this', title: 'Send a follow-up text', detail: '"Just checking in — still interested in getting this scheduled?"', guarded: true, explain: "Only sends if the lead hasn't replied. A reply anywhere before this point cancels it." },
+    { id: 'wait-2', kind: 'wait', title: 'Wait 2 days — did they reply?' },
+    { id: 'task-1', kind: 'task', eyebrow: 'Then do this · ends the sequence', title: 'Create a call task for the team', detail: 'Assigned to: whoever is on lead follow-up today', terminal: true, explain: 'Last step — every path in this sequence ends here or with a reply.' },
+  ];
+
+  function stepCardHtml(step) {
+    const iconKind = step.kind === 'task' ? 'task' : step.kind === 'trigger' ? 'trigger' : 'send';
+    return `
+      <div class="step-card ${step.kind === 'trigger' ? 'trigger' : ''} ${step.terminal ? 'terminal' : ''}">
+        <div class="step-icon ${iconKind}">${icons[iconKind]}</div>
+        <div style="flex:1; min-width:0;">
+          <div class="step-eyebrow">
+            <span>${step.eyebrow}</span>
+            ${step.guarded ? `<span class="guard-tag">Guarded by stop-rule</span>` : ''}
+          </div>
+          <div class="step-title">${step.title}</div>
+          ${step.detail ? `<div class="step-detail">${step.detail}</div>` : ''}
+        </div>
+        <div class="explain">${step.explain}</div>
+      </div>`;
+  }
+
+  function waitPillHtml(step) {
+    return `<div class="wait-pill">${icons.clock}<span>${step.title}</span></div>`;
+  }
+
+  function renderSteps() {
+    const container = document.getElementById('steps-container');
+    let html = '';
+    steps.forEach((step, i) => {
+      if (i > 0) html += `<div class="connector"></div>`;
+      html += step.kind === 'wait' ? waitPillHtml(step) : stepCardHtml(step);
+    });
+    container.innerHTML = html;
+    renderProof();
+  }
+
+  let leadState = { 'lead-a': false, 'lead-b': false };
+
+  function renderProof() {
+    let container = document.getElementById('proof-card');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'proof-card';
+      container.id = 'proof-card';
+      document.querySelector('.canvas-wrap').appendChild(container);
+    }
+    const leads = [
+      { id: 'lead-a', name: 'Marcus D.', atStepId: 'wait-1' },
+      { id: 'lead-b', name: 'Priya S.', atStepId: 'wait-2' },
+    ];
+    container.innerHTML = `
+      <div class="proof-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-600)"><circle cx="12" cy="12" r="9"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        See the stop guarantee in action
+      </div>
+      <div class="proof-sub">These are leads currently partway through this sequence. Simulate a reply to see what happens — nothing here affects the real automation.</div>
+      ${leads.map(l => {
+        const stopped = leadState[l.id];
+        const idx = steps.findIndex(s => s.id === l.atStepId);
+        const nextTitle = steps[idx + 1] ? steps[idx + 1].title : 'the next step';
+        const curTitle = steps[idx] ? steps[idx].title : '—';
+        return `
+        <div class="lead-row ${stopped ? 'stopped' : ''}">
+          <div>
+            <div class="lead-name">${l.name}</div>
+            <div class="lead-status">${stopped ? `Replied — sequence stopped before "${nextTitle}"` : `Currently at: ${curTitle}`}</div>
+          </div>
+          <button class="sim-btn ${stopped ? 'done' : ''}" data-lead="${l.id}" ${stopped ? 'disabled' : ''}>${stopped ? 'Stopped ✓' : 'Simulate reply'}</button>
+        </div>`;
+      }).join('')}
+      <div class="footnote">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        This is a preview link. To change this sequence, ask Dana or whoever owns it to edit in the builder.
+      </div>
+    `;
+    container.querySelectorAll('.sim-btn:not(.done)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        leadState[btn.dataset.lead] = true;
+        renderProof();
+      });
+    });
+  }
+
+  document.getElementById('btn-banner-info').addEventListener('click', () => {
+    document.getElementById('banner-detail').classList.toggle('open');
+  });
+
+  renderSteps();
+</script>
