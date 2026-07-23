@@ -204,6 +204,9 @@
   .node-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-secondary); }
   .node-card.selected { border-color: var(--brand-400, var(--brand-600)); box-shadow: 0 0 0 3px var(--brand-100); }
   .node-card.trigger { border-color: var(--brand-200); }
+  .node-card.trigger.trigger-missing { border-color: var(--error-300); box-shadow: 0 0 0 3px var(--error-50); }
+  .node-card.trigger.trigger-missing .node-head-icon.trigger { background: var(--error-50); color: var(--error-600); }
+  .node-card.trigger.trigger-missing .node-title { color: var(--error-700); }
   .node-card.stop { border-color: var(--error-200); background: var(--error-25); }
   .node-card.stop.rule-off { border-color: var(--border-secondary); background: var(--bg-sunken); }
   .node-card.stop.rule-off .node-head { border-bottom-color: var(--border-primary); }
@@ -311,19 +314,11 @@
   .zoom-ctrl button:hover { background: var(--bg-sunken); }
   .zoom-pct { font-size: 12px; font-weight: 600; color: var(--text-tertiary); width: 40px; text-align: center; font-variant-numeric: tabular-nums; }
 
-  /* ── Canvas sidebar: Log / Test tabs (replaces app sidebar while a canvas is open) ── */
+  /* ── Canvas sidebar: run history (replaces app sidebar while a canvas is open) ── */
   .canvas-sidebar {
     width: 280px; flex-shrink: 0; background: var(--bg-surface); border-right: 1px solid var(--border-primary);
     display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
   }
-  .cs-tabs { display: flex; gap: 4px; padding: 14px 14px 0; border-bottom: 1px solid var(--border-primary); flex-shrink: 0; }
-  .cs-tab {
-    display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-tertiary);
-    background: none; border: none; padding: 8px 12px; border-radius: 8px 8px 0 0; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-  }
-  .cs-tab:hover { color: var(--text-primary); }
-  .cs-tab.active { color: var(--brand-700); border-bottom-color: var(--brand-600); background: var(--brand-50); }
   .cs-panel { display: none; flex: 1; overflow-y: auto; padding: 16px; }
   .cs-panel.active { display: block; }
 
@@ -339,20 +334,6 @@
   .log-lead { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
   .log-outcome { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; line-height: 1.4; }
   .log-time { font-size: 11px; color: var(--text-placeholder); margin-top: 3px; }
-
-  .test-lead { padding: 10px 12px; border-radius: 10px; background: var(--bg-sunken); border: 1px solid var(--border-primary); margin-bottom: 10px; }
-  .test-lead.stopped { background: var(--success-25); border-color: var(--success-200); }
-  .test-lead.ignored { background: var(--warning-50); border-color: var(--warning-200); }
-  .test-lead.ignored .test-lead-status { color: var(--warning-700); }
-  .test-lead-name { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
-  .test-lead-status { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
-  .test-lead.stopped .test-lead-status { color: var(--success-700); }
-  .test-sim-btn { margin-top: 8px; width: 100%; font-size: 12.5px; font-weight: 600; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; }
-  .test-sim-btn:hover { background: var(--bg-sunken); }
-  .test-sim-btn.done { border-color: var(--success-200); background: var(--success-50); color: var(--success-700); cursor: default; }
-  .test-sim-btn.done.ignored { border-color: var(--warning-200); background: var(--warning-50); color: var(--warning-700); }
-
-  .cs-info-note { display: flex; gap: 8px; background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 10px; padding: 10px 12px; font-size: 11.5px; color: var(--brand-800); line-height: 1.5; margin-top: 14px; }
 
   /* ── Node editor slideout ─────────────────────────── */
   .editor-backdrop { position: fixed; inset: 0; background: rgba(16,24,40,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 40; }
@@ -515,29 +496,10 @@
   </aside>
 
   <aside class="canvas-sidebar" id="canvas-sidebar" style="display:none;">
-    <div class="cs-tabs">
-      <button class="cs-tab active" id="cs-tab-log" data-tab="log">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Log
-      </button>
-      <button class="cs-tab" id="cs-tab-test" data-tab="test">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L15 8V2"/><path d="M9 2h6"/><path d="M7 15h10"/></svg>
-        Test
-      </button>
-    </div>
     <div class="cs-panel active" id="cs-panel-log">
       <div class="cs-heading">Run history</div>
       <div class="cs-sub">What actually happened the last few times this automation ran.</div>
       <div id="log-list"></div>
-    </div>
-    <div class="cs-panel" id="cs-panel-test">
-      <div class="cs-heading">See the stop guarantee in action</div>
-      <div class="cs-sub">These are leads currently partway through this sequence. Simulate a reply to see what happens — nothing here affects the real automation.</div>
-      <div id="test-list"></div>
-      <div class="cs-info-note">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        <span>A text reply stops every step below it automatically — see the "Guarded by stop-rule" tag and the red Stop branches on the canvas.</span>
-      </div>
     </div>
   </aside>
 
@@ -588,6 +550,7 @@
           </div>
         </div>
         <div class="canvas-topbar-right">
+          <button class="btn-ghost" id="btn-demo-connection" style="display:none;">Demo: click here</button>
           <span class="autosave" id="autosave-indicator">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             Auto saved
@@ -699,7 +662,7 @@
   const automations = [
     { id: 'a1', name: 'New lead follow-up (HVAC)', created: 'Jun 2, 2026', lastRan: 'Jul 16, 2026', runs: 214, health: 'active', graph: 'g1', tour: true, isNew: true },
     { id: 'a2', name: 'Quote sent — 3 day nudge', created: 'May 11, 2026', lastRan: 'Jul 10, 2026', runs: 58, health: 'active', graph: 'g2', tour: false },
-    { id: 'a3', name: 'Missed appointment text', created: 'Apr 22, 2026', lastRan: null, runs: 0, health: 'no-trigger', graph: 'g2', tour: false },
+    { id: 'a3', name: 'Missed appointment text', created: 'Apr 22, 2026', lastRan: null, runs: 0, health: 'broken', graph: 'g3', tour: false },
     { id: 'a4', name: 'Seasonal maintenance reminder', created: 'Mar 14, 2026', lastRan: 'Jun 1, 2026', runs: 41, health: 'paused', graph: 'g2', tour: false },
     { id: 'a5', name: 'Review request after job close', created: 'Feb 27, 2026', lastRan: 'Jul 15, 2026', runs: 130, health: 'active', graph: 'g2', tour: false },
     { id: 'a6', name: 'Old promo blast (unused)', created: 'Nov 9, 2025', lastRan: null, runs: 0, health: 'no-trigger', graph: 'g2', tour: false },
@@ -707,6 +670,7 @@
 
   function badgeFor(health) {
     if (health === 'no-trigger') return `<span class="badge badge-warning"><span class="dot"></span>Needs a trigger</span>`;
+    if (health === 'broken') return `<span class="badge badge-warning"><span class="dot"></span>Missing a step</span>`;
     if (health === 'paused') return `<span class="badge badge-gray"><span class="dot"></span>Paused</span>`;
     return `<span class="badge badge-success"><span class="dot"></span>Active</span>`;
   }
@@ -718,13 +682,14 @@
         <td>
           <div class="row-name">${a.name}${a.isNew ? '<span class="new-pill">Start here</span>' : ''}</div>
           ${a.health === 'no-trigger' ? `<div class="row-warning">${icons.warn}Won't run — no trigger set</div>` : ''}
+          ${a.health === 'broken' ? `<div class="row-warning">${icons.warn}Won't finish — a step isn't connected</div>` : ''}
         </td>
         <td>${badgeFor(a.health)}</td>
         <td style="color:var(--text-tertiary)">${a.created}</td>
         <td style="color:${a.lastRan ? 'var(--text-tertiary)' : 'var(--text-placeholder)'}">${a.lastRan || '—'}</td>
         <td class="num">${a.runs}</td>
         <td class="num">
-          <button class="toggle ${a.health === 'active' ? 'on' : ''}" data-id="${a.id}" ${a.health === 'no-trigger' ? 'disabled' : ''} aria-label="Toggle active"></button>
+          <button class="toggle ${a.health === 'active' ? 'on' : ''}" data-id="${a.id}" ${a.health === 'no-trigger' || a.health === 'broken' ? 'disabled' : ''} aria-label="Toggle active"></button>
         </td>
       </tr>
     `).join('');
@@ -739,7 +704,7 @@
       t.addEventListener('click', (e) => {
         e.stopPropagation();
         const a = automations.find(x => x.id === t.dataset.id);
-        if (a.health === 'no-trigger') return;
+        if (a.health === 'no-trigger' || a.health === 'broken') return;
         a.health = a.health === 'active' ? 'paused' : 'active';
         renderList();
       });
@@ -792,7 +757,28 @@
     };
   }
 
-  const graphBuilders = { g1: graph1, g2: graph2 };
+  function graph3() {
+    return {
+      nodes: [
+        { id: 'trigger', type: 'trigger', x: 40, y: 40, title: 'Appointment marked as missed', detail: 'Trigger', triggerType: 'missed-appointment' },
+        { id: 'send-1', type: 'send', x: 360, y: 40, title: 'Text about the missed appointment', detail: 'Sorry we missed you today — want to grab a new time?', channel: 'sms' },
+        { id: 'wait-1', type: 'wait', x: 680, y: 40, title: 'Wait 2 days — did they reply?', detail: 'Checks for a reply before continuing.', waitValue: 2, waitUnit: 'days', match: 'all' },
+        { id: 'stop-1', type: 'stop', x: 680, y: 300, title: 'Sequence stops here', detail: 'Customer responded.', reason: 'replied' },
+        { id: 'task-1', type: 'task', x: 1000, y: 40, title: 'Create a reschedule call task', detail: 'Assigned to: whoever is on lead follow-up today.', assignTo: 'oncall', terminal: true },
+      ],
+      // The wait-1 → task-1 edge starts disconnected on purpose — see the
+      // "Demo: click here" button, which toggles DEMO_CONNECTION on/off.
+      connections: [
+        { from: 'trigger', to: 'send-1' },
+        { from: 'send-1', to: 'wait-1' },
+        { from: 'wait-1', to: 'stop-1', label: 'Replied', branch: true },
+      ],
+    };
+  }
+
+  const DEMO_CONNECTION = { from: 'wait-1', to: 'task-1', label: 'No reply' };
+
+  const graphBuilders = { g1: graph1, g2: graph2, g3: graph3 };
 
   let state = null; // current open automation runtime state
   let zoom = 1;
@@ -935,6 +921,7 @@
     if (flags.unconnected) cls.push('floating');
     if (flags.broken) cls.push('broken');
     if (n.type === 'stop' && !state.globalStopRule) cls.push('rule-off');
+    if (n.type === 'trigger' && n.triggerMissing) cls.push('trigger-missing');
     const label = headLabel[n.type] + (n.type === 'send' ? ` · ${channelLabel(n.channel)}` : '');
     const canDeleteAttr = n.type === 'trigger' ? 'disabled title="Every automation needs a trigger"' : '';
     const slots = flags.slots || {};
@@ -964,7 +951,8 @@
           <div class="node-detail">${n.detail}</div>
           ${n.guarded ? `<span class="node-guard" style="${state.globalStopRule ? '' : 'color:var(--text-placeholder); background:var(--bg-sunken); border-color:var(--border-secondary);'}">${icons.lock} ${state.globalStopRule ? 'Guarded by stop-rule' : 'Guard off'}</span>` : ''}
           ${flags.unconnected ? `<div class="node-unconnected">${icons.warn} Not connected yet</div>` : ''}
-          ${flags.broken ? `<div class="node-error">${icons.warn} Doesn't lead anywhere — fix this path</div>` : ''}
+          ${flags.broken ? `<div class="node-error">${icons.warn} ${n.type === 'wait' ? 'Missing a step for one outcome' : "Doesn't lead anywhere — fix this path"}</div>` : ''}
+          ${n.type === 'trigger' && n.triggerMissing ? `<div class="node-error">${icons.warn} No trigger set — this automation will never run</div>` : ''}
           ${n.type === 'trigger' ? globalRuleHtml() : ''}
         </div>
       </div>`;
@@ -979,8 +967,8 @@
           <button class="toggle-sm ${on ? 'on' : ''}" id="global-rule-toggle" aria-label="Toggle global stop rule"></button>
         </div>
         <div class="global-rule-sub">Stop this automation when:</div>
-        <div class="global-rule-cond"><span class="mark">${on ? '✓' : '✕'}</span> Customer replies to SMS</div>
-        <div class="global-rule-caption">${on ? 'Active for every step' : 'Off — steps will send even if the customer replies'}</div>
+        <div class="global-rule-cond"><span class="mark">${on ? '✓' : '✕'}</span> Customer responds</div>
+        <div class="global-rule-caption">${on ? 'Active for every step' : 'Off — steps will send even if the customer responds'}</div>
       </div>`;
   }
 
@@ -997,7 +985,6 @@
         e.stopPropagation();
         state.globalStopRule = !state.globalStopRule;
         renderCanvas();
-        renderTestTab();
       });
     }
     document.querySelectorAll('[data-add-source]').forEach(btn => {
@@ -1023,7 +1010,6 @@
         if (btn.dataset.action === 'duplicate') duplicateNode(id);
         openKebabId = null;
         renderCanvas();
-        renderTestTab();
       });
     });
   }
@@ -1134,7 +1120,6 @@
 
     pendingAdd = { sourceId, side, newNodeId: newId };
     renderCanvas();
-    renderTestTab();
     openEditor(newId, { fromAdd: true });
   }
 
@@ -1168,7 +1153,6 @@
     state.nodes = state.nodes.filter(x => x.id !== newNodeId);
     state.connections = state.connections.filter(c => c.from !== newNodeId && c.to !== newNodeId);
     renderCanvas();
-    renderTestTab();
     openAddPicker(sourceId, side);
   });
 
@@ -1184,12 +1168,18 @@
   function editorBodyHtml(n) {
     if (n.type === 'trigger') {
       return `
+        ${n.triggerMissing ? `
+        <div class="locked-banner" style="background:var(--error-25); border-color:var(--error-200); color:var(--error-700);">
+          ${icons.warn}<div><strong>No trigger set.</strong> This automation will never run until you pick one below.</div>
+        </div>` : ''}
         <div>
           <label class="field-label">Trigger type</label>
           <select class="field-select" data-field="triggerType">
+            ${n.triggerMissing ? '<option value="" selected disabled hidden>Choose a trigger…</option>' : ''}
             <option value="form" ${n.triggerType === 'form' ? 'selected' : ''}>New website form submitted</option>
             <option value="missed-call" ${n.triggerType === 'missed-call' ? 'selected' : ''}>Missed call logged</option>
             <option value="quote" ${n.triggerType === 'quote' ? 'selected' : ''}>Quote marked as sent</option>
+            <option value="missed-appointment" ${n.triggerType === 'missed-appointment' ? 'selected' : ''}>Appointment marked as missed</option>
           </select>
           <div class="field-hint">This automation starts the moment this happens. Every automation needs exactly one trigger.</div>
         </div>
@@ -1303,6 +1293,7 @@
         syncNodeTitle(n);
         renderCanvas();
         flashAutosave();
+        if (el.dataset.field === 'triggerType') openEditor(n.id);
       });
     });
     document.getElementById('editor-body').querySelectorAll('input[name="channel"]').forEach(el => {
@@ -1314,8 +1305,12 @@
 
   function syncNodeTitle(n) {
     if (n.type === 'trigger') {
-      const map = { form: 'New website form submitted', 'missed-call': 'Missed call logged', quote: 'Quote marked as sent' };
-      n.title = map[n.triggerType];
+      const map = { form: 'New website form submitted', 'missed-call': 'Missed call logged', quote: 'Quote marked as sent', 'missed-appointment': 'Appointment marked as missed' };
+      if (n.triggerType && map[n.triggerType]) {
+        n.title = map[n.triggerType];
+        n.detail = 'Trigger';
+        n.triggerMissing = false;
+      }
     }
     if (n.type === 'wait') {
       n.title = `Wait ${n.waitValue} ${n.waitUnit === 'days' ? (n.waitValue == 1 ? 'day' : 'days') : (n.waitValue == 1 ? 'hour' : 'hours')} — did they reply?`;
@@ -1336,10 +1331,22 @@
   }
 
   function publish() {
+    const missingTrigger = state.nodes.find(n => n.type === 'trigger' && n.triggerMissing);
+    if (missingTrigger) {
+      document.getElementById('modal-title').textContent = "Can't publish yet";
+      document.getElementById('modal-desc').textContent = `No trigger is set — this automation would save but never run. Choose what starts it.`;
+      document.getElementById('modal-fix').dataset.node = missingTrigger.id;
+      document.getElementById('modal-overlay').classList.add('open');
+      selectedNodeId = missingTrigger.id;
+      renderCanvas();
+      return;
+    }
     const deadEnd = findDeadEndNode();
     if (deadEnd) {
       document.getElementById('modal-title').textContent = "Can't publish yet";
-      document.getElementById('modal-desc').textContent = `"${deadEnd.title}" doesn't lead anywhere — it would run and then go silent.`;
+      document.getElementById('modal-desc').textContent = deadEnd.type === 'wait'
+        ? `"${deadEnd.title}" only handles one outcome — there's no step for the other one, so some leads would get stuck.`
+        : `"${deadEnd.title}" doesn't lead anywhere — it would run and then go silent.`;
       document.getElementById('modal-fix').dataset.node = deadEnd.id;
       document.getElementById('modal-overlay').classList.add('open');
       return;
@@ -1466,6 +1473,21 @@
 
   document.getElementById('btn-restart-tour').addEventListener('click', startTour);
 
+  function isDemoConnected() {
+    return state.connections.some(c => c.from === DEMO_CONNECTION.from && c.to === DEMO_CONNECTION.to);
+  }
+
+  document.getElementById('btn-demo-connection').addEventListener('click', () => {
+    if (isDemoConnected()) {
+      state.connections = state.connections.filter(c => !(c.from === DEMO_CONNECTION.from && c.to === DEMO_CONNECTION.to));
+    } else {
+      state.connections.push({ ...DEMO_CONNECTION });
+    }
+    if (selectedNodeId === 'wait-1') selectedNodeId = null;
+    renderCanvas();
+    flashAutosave();
+  });
+
   /* ═══════════════════ RUN HISTORY (Log tab) ═══════════════════ */
   const RUN_HISTORY = {
     g1: [
@@ -1480,10 +1502,15 @@
       { name: 'Alvarez Plumbing', icon: 'task', outcome: 'No reply after reminder — call task created', time: 'Jul 9, 1:05 PM' },
       { name: 'Ferreira HVAC', icon: 'sent', outcome: 'Reminder text sent — waiting for reply', time: 'Jul 16, 9:30 AM' },
     ],
+    g3: [],
   };
 
   function renderLogTab() {
     const list = RUN_HISTORY[state.graphKey] || [];
+    if (!list.length) {
+      document.getElementById('log-list').innerHTML = `<div class="cs-sub" style="margin:0;">No runs yet — this automation hasn't gone live.</div>`;
+      return;
+    }
     document.getElementById('log-list').innerHTML = list.map(r => `
       <div class="log-row">
         <div class="log-icon ${r.icon}">${r.icon === 'stopped' ? icons.stop : r.icon === 'task' ? icons.task : icons.send}</div>
@@ -1496,53 +1523,6 @@
     `).join('');
   }
 
-  /* ═══════════════════ TEST TAB (moved from the old on-canvas proof card) ═══════════════════ */
-  const TEST_LEAD_NAMES = ['Marcus D.', 'Priya S.', 'Jordan K.'];
-  let testLeadState = {};
-
-  function renderTestTab() {
-    const waitNodes = state.nodes.filter(n => n.type === 'wait');
-    document.getElementById('test-list').innerHTML = waitNodes.map((wn, i) => {
-      const name = TEST_LEAD_NAMES[i % TEST_LEAD_NAMES.length];
-      const leadId = 'test-' + wn.id;
-      const result = testLeadState[leadId]; // undefined | 'stopped' | 'ignored'
-      const outgoing = state.connections.find(c => c.from === wn.id && !c.branch);
-      const nextTitle = outgoing ? nodeById(outgoing.to)?.title : 'the next step';
-      let statusText, btnLabel, rowClass, btnClass;
-      if (result === 'stopped') {
-        statusText = `Replied — stopped before "${nextTitle}"`;
-        btnLabel = 'Stopped ✓'; rowClass = 'stopped'; btnClass = 'done';
-      } else if (result === 'ignored') {
-        statusText = `Replied — but "${nextTitle}" sent anyway (rule is off)`;
-        btnLabel = 'Sent anyway ⚠'; rowClass = 'ignored'; btnClass = 'done ignored';
-      } else {
-        statusText = `Currently at: ${wn.title}`;
-        btnLabel = 'Simulate reply'; rowClass = ''; btnClass = '';
-      }
-      return `
-        <div class="test-lead ${rowClass}">
-          <div class="test-lead-name">${name}</div>
-          <div class="test-lead-status">${statusText}</div>
-          <button class="test-sim-btn ${btnClass}" data-test-lead="${leadId}" ${result ? 'disabled' : ''}>${btnLabel}</button>
-        </div>`;
-    }).join('') || `<div class="cs-sub" style="margin:0;">No condition steps in this sequence yet — add a "Wait" step to test the stop guarantee.</div>`;
-
-    document.querySelectorAll('[data-test-lead]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        testLeadState[btn.dataset.testLead] = state.globalStopRule ? 'stopped' : 'ignored';
-        renderTestTab();
-      });
-    });
-  }
-
-  function switchCanvasTab(tab) {
-    document.querySelectorAll('.cs-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-    document.getElementById('cs-panel-log').classList.toggle('active', tab === 'log');
-    document.getElementById('cs-panel-test').classList.toggle('active', tab === 'test');
-  }
-  document.getElementById('cs-tab-log').addEventListener('click', () => switchCanvasTab('log'));
-  document.getElementById('cs-tab-test').addEventListener('click', () => switchCanvasTab('test'));
-
   /* ═══════════════════ VIEW SWITCHING ═══════════════════ */
   function openCanvas(id) {
     const a = automations.find(x => x.id === id) || automations[0];
@@ -1551,24 +1531,22 @@
     zoom = 1;
     selectedNodeId = null;
     openKebabId = null;
-    testLeadState = {};
 
     document.getElementById('crumb-name').textContent = a.name;
     document.getElementById('canvas-title').textContent = a.name;
     document.getElementById('canvas-status-badge').innerHTML = badgeFor(a.health);
     document.getElementById('zoom-pct').textContent = '100%';
     document.getElementById('btn-restart-tour').style.display = 'none';
+    document.getElementById('btn-demo-connection').style.display = a.graph === 'g3' ? 'inline-flex' : 'none';
 
     document.getElementById('app-sidebar').style.display = 'none';
     document.getElementById('canvas-sidebar').style.display = 'flex';
-    switchCanvasTab('log');
 
     document.getElementById('view-list').classList.remove('active');
     document.getElementById('view-canvas').classList.add('active');
 
     renderCanvas();
     renderLogTab();
-    renderTestTab();
     document.getElementById('canvas-outer').scrollTo(0, 0);
 
     if (a.tour) {
