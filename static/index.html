@@ -194,6 +194,7 @@
   }
   .branch-label.no-reply { background: var(--bg-surface); border: 1px solid var(--border-secondary); color: var(--text-secondary); }
   .branch-label.replied { background: var(--error-25); border: 1px solid var(--error-200); color: var(--error-700); }
+  .branch-label.replied.off { background: var(--bg-surface); border-color: var(--border-secondary); color: var(--text-tertiary); }
 
   .node-card {
     position: absolute; width: 236px; background: var(--bg-surface); border: 1px solid var(--border-primary);
@@ -204,6 +205,10 @@
   .node-card.selected { border-color: var(--brand-400, var(--brand-600)); box-shadow: 0 0 0 3px var(--brand-100); }
   .node-card.trigger { border-color: var(--brand-200); }
   .node-card.stop { border-color: var(--error-200); background: var(--error-25); }
+  .node-card.stop.rule-off { border-color: var(--border-secondary); background: var(--bg-sunken); }
+  .node-card.stop.rule-off .node-head { border-bottom-color: var(--border-primary); }
+  .node-card.stop.rule-off .node-head-icon.stop { background: var(--bg-sunken); color: var(--text-placeholder); }
+  .node-card.stop.rule-off .node-head-label { color: var(--text-placeholder); }
   .node-card.floating { border-style: dashed; opacity: .85; }
   .node-card.dimmed { opacity: .35; filter: grayscale(.4); }
   .node-card.broken { border-color: var(--error-300); box-shadow: 0 0 0 3px var(--error-50); }
@@ -241,6 +246,32 @@
   .node-guard { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--brand-700); background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 999px; padding: 1px 7px; margin-top: 8px; }
   .node-unconnected { font-size: 11px; color: var(--warning-700); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
   .node-error { font-size: 11px; font-weight: 600; color: var(--error-700); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+  .global-rule {
+    margin-top: 12px; border-radius: 10px; padding: 10px 11px;
+    border: 1px solid var(--brand-200); background: var(--brand-50);
+  }
+  .global-rule.off { border-color: var(--border-secondary); background: var(--bg-sunken); }
+  .global-rule-head { display: flex; align-items: center; gap: 8px; }
+  .global-rule-title { font-size: 11.5px; font-weight: 700; color: var(--brand-800); flex: 1; }
+  .global-rule.off .global-rule-title { color: var(--text-tertiary); }
+  .global-rule-sub { font-size: 11px; color: var(--brand-700); margin-top: 7px; }
+  .global-rule.off .global-rule-sub { color: var(--text-placeholder); }
+  .global-rule-cond {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--brand-800); margin-top: 3px;
+  }
+  .global-rule.off .global-rule-cond { color: var(--text-tertiary); text-decoration: line-through; }
+  .global-rule-cond .mark { color: var(--success-600); font-weight: 700; }
+  .global-rule.off .global-rule-cond .mark { color: var(--text-placeholder); }
+  .global-rule-caption { font-size: 10.5px; color: var(--brand-600); margin-top: 6px; }
+  .global-rule.off .global-rule-caption { color: var(--warning-700); }
+
+  .toggle-sm { position: relative; width: 30px; height: 17px; border-radius: 999px; background: var(--border-secondary); cursor: pointer; border: none; flex-shrink: 0; transition: background .15s ease; }
+  .toggle-sm::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 999px; background: #fff; transition: transform .15s ease; box-shadow: 0 1px 2px rgba(16,24,40,.2); }
+  .toggle-sm.on { background: var(--brand-600); }
+  .toggle-sm.on::after { transform: translateX(13px); }
+  .toggle-sm:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
   .port { position: absolute; width: 10px; height: 10px; border-radius: 999px; background: var(--bg-surface); border: 2px solid var(--border-secondary); top: 24px; }
   .port.left { left: -6px; }
@@ -311,12 +342,15 @@
 
   .test-lead { padding: 10px 12px; border-radius: 10px; background: var(--bg-sunken); border: 1px solid var(--border-primary); margin-bottom: 10px; }
   .test-lead.stopped { background: var(--success-25); border-color: var(--success-200); }
+  .test-lead.ignored { background: var(--warning-50); border-color: var(--warning-200); }
+  .test-lead.ignored .test-lead-status { color: var(--warning-700); }
   .test-lead-name { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); }
   .test-lead-status { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
   .test-lead.stopped .test-lead-status { color: var(--success-700); }
   .test-sim-btn { margin-top: 8px; width: 100%; font-size: 12.5px; font-weight: 600; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border-secondary); background: var(--bg-surface); color: var(--text-secondary); cursor: pointer; }
   .test-sim-btn:hover { background: var(--bg-sunken); }
   .test-sim-btn.done { border-color: var(--success-200); background: var(--success-50); color: var(--success-700); cursor: default; }
+  .test-sim-btn.done.ignored { border-color: var(--warning-200); background: var(--warning-50); color: var(--warning-700); }
 
   .cs-info-note { display: flex; gap: 8px; background: var(--brand-50); border: 1px solid var(--brand-200); border-radius: 10px; padding: 10px 12px; font-size: 11.5px; color: var(--brand-800); line-height: 1.5; margin-top: 14px; }
 
@@ -774,6 +808,7 @@
       nodes: g.nodes.map(n => ({ ...n })),
       connections: g.connections.map(c => ({ ...c })),
       dupCounter: 1,
+      globalStopRule: true,
     };
   }
 
@@ -866,7 +901,7 @@
     conns.forEach(c => {
       const from = nodeById(c.from), to = nodeById(c.to);
       const p1 = portPoint(from, 'right'), p2 = portPoint(to, 'left');
-      const stroke = c.branch ? 'var(--error-300)' : 'var(--border-secondary)';
+      const stroke = c.branch ? (state.globalStopRule ? 'var(--error-300)' : 'var(--border-secondary)') : 'var(--border-secondary)';
       svgHtml += `<path d="${bezierPath(p1, p2)}" fill="none" stroke="${stroke}" stroke-width="2" stroke-dasharray="${c.branch ? '5 4' : 'none'}" />`;
     });
     svg.innerHTML = svgHtml;
@@ -876,7 +911,7 @@
       const from = nodeById(c.from), to = nodeById(c.to);
       const p1 = portPoint(from, 'right'), p2 = portPoint(to, 'left');
       const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-      const cls = c.branch ? 'replied' : 'no-reply';
+      const cls = c.branch ? (state.globalStopRule ? 'replied' : 'replied off') : 'no-reply';
       return `<div class="branch-label ${cls}" style="left:${mx}px; top:${my}px;">${c.label}</div>`;
     }).join('');
 
@@ -899,6 +934,7 @@
     if (n.id === selectedNodeId) cls.push('selected');
     if (flags.unconnected) cls.push('floating');
     if (flags.broken) cls.push('broken');
+    if (n.type === 'stop' && !state.globalStopRule) cls.push('rule-off');
     const label = headLabel[n.type] + (n.type === 'send' ? ` · ${channelLabel(n.channel)}` : '');
     const canDeleteAttr = n.type === 'trigger' ? 'disabled title="Every automation needs a trigger"' : '';
     const slots = flags.slots || {};
@@ -926,20 +962,44 @@
         <div class="node-body">
           <div class="node-title">${n.title}</div>
           <div class="node-detail">${n.detail}</div>
-          ${n.guarded ? `<span class="node-guard">${icons.lock} Guarded by stop-rule</span>` : ''}
+          ${n.guarded ? `<span class="node-guard" style="${state.globalStopRule ? '' : 'color:var(--text-placeholder); background:var(--bg-sunken); border-color:var(--border-secondary);'}">${icons.lock} ${state.globalStopRule ? 'Guarded by stop-rule' : 'Guard off'}</span>` : ''}
           ${flags.unconnected ? `<div class="node-unconnected">${icons.warn} Not connected yet</div>` : ''}
           ${flags.broken ? `<div class="node-error">${icons.warn} Doesn't lead anywhere — fix this path</div>` : ''}
+          ${n.type === 'trigger' ? globalRuleHtml() : ''}
         </div>
+      </div>`;
+  }
+
+  function globalRuleHtml() {
+    const on = state.globalStopRule;
+    return `
+      <div class="global-rule ${on ? '' : 'off'}">
+        <div class="global-rule-head">
+          <span class="global-rule-title">Global Stop Rule</span>
+          <button class="toggle-sm ${on ? 'on' : ''}" id="global-rule-toggle" aria-label="Toggle global stop rule"></button>
+        </div>
+        <div class="global-rule-sub">Stop this automation when:</div>
+        <div class="global-rule-cond"><span class="mark">${on ? '✓' : '✕'}</span> Customer replies to SMS</div>
+        <div class="global-rule-caption">${on ? 'Active for every step' : 'Off — steps will send even if the customer replies'}</div>
       </div>`;
   }
 
   function attachNodeHandlers() {
     document.querySelectorAll('.node-card').forEach(card => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.kebab-wrap') || e.target.closest('.node-add')) return;
+        if (e.target.closest('.kebab-wrap') || e.target.closest('.node-add') || e.target.closest('.global-rule')) return;
         openEditor(card.dataset.node);
       });
     });
+    const globalToggle = document.getElementById('global-rule-toggle');
+    if (globalToggle) {
+      globalToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.globalStopRule = !state.globalStopRule;
+        renderCanvas();
+        renderTestTab();
+      });
+    }
     document.querySelectorAll('[data-add-source]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1445,20 +1505,31 @@
     document.getElementById('test-list').innerHTML = waitNodes.map((wn, i) => {
       const name = TEST_LEAD_NAMES[i % TEST_LEAD_NAMES.length];
       const leadId = 'test-' + wn.id;
-      const stopped = testLeadState[leadId];
+      const result = testLeadState[leadId]; // undefined | 'stopped' | 'ignored'
       const outgoing = state.connections.find(c => c.from === wn.id && !c.branch);
       const nextTitle = outgoing ? nodeById(outgoing.to)?.title : 'the next step';
+      let statusText, btnLabel, rowClass, btnClass;
+      if (result === 'stopped') {
+        statusText = `Replied — stopped before "${nextTitle}"`;
+        btnLabel = 'Stopped ✓'; rowClass = 'stopped'; btnClass = 'done';
+      } else if (result === 'ignored') {
+        statusText = `Replied — but "${nextTitle}" sent anyway (rule is off)`;
+        btnLabel = 'Sent anyway ⚠'; rowClass = 'ignored'; btnClass = 'done ignored';
+      } else {
+        statusText = `Currently at: ${wn.title}`;
+        btnLabel = 'Simulate reply'; rowClass = ''; btnClass = '';
+      }
       return `
-        <div class="test-lead ${stopped ? 'stopped' : ''}">
+        <div class="test-lead ${rowClass}">
           <div class="test-lead-name">${name}</div>
-          <div class="test-lead-status">${stopped ? `Replied — stopped before "${nextTitle}"` : `Currently at: ${wn.title}`}</div>
-          <button class="test-sim-btn ${stopped ? 'done' : ''}" data-test-lead="${leadId}" ${stopped ? 'disabled' : ''}>${stopped ? 'Stopped ✓' : 'Simulate reply'}</button>
+          <div class="test-lead-status">${statusText}</div>
+          <button class="test-sim-btn ${btnClass}" data-test-lead="${leadId}" ${result ? 'disabled' : ''}>${btnLabel}</button>
         </div>`;
     }).join('') || `<div class="cs-sub" style="margin:0;">No condition steps in this sequence yet — add a "Wait" step to test the stop guarantee.</div>`;
 
     document.querySelectorAll('[data-test-lead]').forEach(btn => {
       btn.addEventListener('click', () => {
-        testLeadState[btn.dataset.testLead] = true;
+        testLeadState[btn.dataset.testLead] = state.globalStopRule ? 'stopped' : 'ignored';
         renderTestTab();
       });
     });
